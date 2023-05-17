@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import javax.swing.text.html.Option;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -38,12 +39,13 @@ public class UserController {
         Optional<User> foundUser = userRepository.findById(id);
         return foundUser.isPresent() ?
                 ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("OK", "Query product successfully",foundUser)
-                ):
+                        new ResponseObject("OK", "Query product successfully", foundUser)
+                ) :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        new ResponseObject("false","Cannot find product with id = "+id, "")
+                        new ResponseObject("false", "Cannot find product with id = " + id, "")
                 );
     }
+
     @GetMapping("/imageFiles/{fileName:.+}")
     public ResponseEntity<byte[]> readDetailImageFile(@PathVariable String fileName) {
         try {
@@ -53,33 +55,47 @@ public class UserController {
                     .contentType(MediaType.IMAGE_JPEG)
                     .body(bytes);
 
-        }catch (Exception exception){
+        } catch (Exception exception) {
             return ResponseEntity.noContent().build(); // ko tìm thấy image trả về nocontent
         }
     }
+
     @PostMapping("/insert")
     ResponseEntity<ResponseObject> insertUser(@RequestParam("name") String name,
                                               @RequestParam("image") MultipartFile imagefile,
                                               @RequestParam("username") String username,
                                               @RequestParam("password") String password) {
-        String imageFileName = imageStorageService.storeFile(imagefile);
-        String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
-                "readDetailImageFile", imageFileName).build().toUri().toString();
-
         User user = new User();
+        if (imagefile != null && !imagefile.isEmpty()) {
+            // Xử lý và lưu trữ file ảnh mới (nếu có)
+            String imageFileName = imageStorageService.storeFile(imagefile);
+            String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                    "readDetailImageFile", imageFileName).build().toUri().toString();
+            user.setAvatarUrl(urlImage);
+        } else {
+            // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
+            user.setAvatarUrl(null);
+        }
+
         user.setName(name);
-        user.setAvatarUrl(urlImage);
         user.setUserName(username);
         user.setPassword(password);
         user.setFollowers(new HashSet<>());
 
+        user.setAvatarUrl(null);
+        user.setCreatedAt(LocalDateTime.now());
+
+
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("OK","Insert user successfully", userRepository.save(user))
+                new ResponseObject("OK", "Insert user successfully", userRepository.save(user))
         );
+
+
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject>  updateUser(@RequestParam("image") MultipartFile fileImage,
-                                                      @RequestBody User newUser, @PathVariable Long id) {
+    public ResponseEntity<ResponseObject> updateUser(@RequestParam("image") MultipartFile fileImage,
+                                                     @RequestBody User newUser, @PathVariable Long id) {
         User updateUser = userRepository.findById(id)
                 .map(user -> {
                     if (newUser.getAvatarUrl() != null || fileImage != null) {
@@ -98,14 +114,15 @@ public class UserController {
                     user.setUserName(newUser.getUserName());
                     user.setPassword(newUser.getPassword());
                     return userRepository.save(user);
-                }).orElseGet(() ->{
+                }).orElseGet(() -> {
                     newUser.setId(id);
                     return userRepository.save(newUser);
                 });
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("OK","Update user successfully", updateUser)
+                new ResponseObject("OK", "Update user successfully", updateUser)
         );
     }
+
     @PutMapping("/{id}/follow")
     public ResponseEntity<ResponseObject> followUser(@PathVariable("id") Long userId,
                                                      @RequestParam("followerId") Long followerId) {
@@ -128,17 +145,18 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @DeleteMapping("/{id}")
     ResponseEntity<ResponseObject> deleteUser(@PathVariable Long id) {
         boolean exists = userRepository.existsById(id);
-        if(exists){
+        if (exists) {
             userRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("ok", "delete user successfully","")
+                    new ResponseObject("ok", "delete user successfully", "")
             );
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new ResponseObject("failed", "cannot find user to delete","")
+                new ResponseObject("failed", "cannot find user to delete", "")
         );
     }
 
