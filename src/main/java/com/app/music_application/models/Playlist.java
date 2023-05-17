@@ -19,6 +19,8 @@ public class Playlist {
     private User creatorId;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+    @Column(name = "is_favorite")
+    private boolean isFavorite;
     @ManyToMany
     @JoinTable(
             name = "playlist_song",
@@ -76,6 +78,14 @@ public class Playlist {
         this.songs = songs;
     }
 
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
+    }
+
     @Override
     public String toString() {
         return "Playlist{" +
@@ -83,6 +93,7 @@ public class Playlist {
                 ", name='" + name + '\'' +
                 ", creatorId=" + creatorId +
                 ", createdAt=" + createdAt +
+                ", isFavorite=" + isFavorite +
                 ", songs=" + songs +
                 '}';
     }

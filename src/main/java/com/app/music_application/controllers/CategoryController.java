@@ -36,7 +36,7 @@ public class CategoryController {
     @PostMapping("/insert")
     ResponseEntity<ResponseObject> insertCategory(@RequestBody Category newCategory) {
         // check 2 product must not have the same name !!
-        List<Category> foundCategory = categoryRepository.findByCategoryName(newCategory.getName().trim());
+        List<Category> foundCategory = categoryRepository.findByName(newCategory.getName().trim());
         if(foundCategory.size() > 0) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                     new ResponseObject("failed","Category name already taken", "")

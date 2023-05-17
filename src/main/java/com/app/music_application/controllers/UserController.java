@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import javax.swing.text.html.Option;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -62,16 +63,29 @@ public class UserController {
                                               @RequestParam("image") MultipartFile imagefile,
                                               @RequestParam("username") String username,
                                               @RequestParam("password") String password) {
-        String imageFileName = imageStorageService.storeFile(imagefile);
-        String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
-                "readDetailImageFile", imageFileName).build().toUri().toString();
-
         User user = new User();
+        if (imagefile != null && !imagefile.isEmpty()) {
+            // Xử lý và lưu trữ file ảnh mới (nếu có)
+            String imageFileName = imageStorageService.storeFile(imagefile);
+            String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                    "readDetailImageFile", imageFileName).build().toUri().toString();
+            user.setAvatarUrl(urlImage);
+        } else {
+            // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
+            user.setAvatarUrl(null);
+        }
+
+//        String imageFileName = imageStorageService.storeFile(imagefile);
+//        String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+//                "readDetailImageFile", imageFileName).build().toUri().toString();
+
+//        User user = new User();
         user.setName(name);
-        user.setAvatarUrl(urlImage);
+//        user.setAvatarUrl(urlImage);
         user.setUserName(username);
         user.setPassword(password);
         user.setFollowers(new HashSet<>());
+        user.setCreatedAt(LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("OK","Insert user successfully", userRepository.save(user))

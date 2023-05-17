@@ -54,6 +54,7 @@ public class User {
         Playlist playlist = new Playlist();
         playlist.setName("Yêu thích");
         playlist.setCreatorId(this);
+        playlist.setFavorite(true);
         playlist.setCreatedAt(LocalDateTime.now());
         this.playlists.add(playlist);
     }
