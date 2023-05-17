@@ -87,14 +87,24 @@ public class SongController {
                                               @RequestParam("song")MultipartFile songfile,
                                               @RequestParam("category") Long categoryId,
                                               @RequestParam("creator") Long userId) {
+            Song song = new Song();
             // lưu trữ file
             String songFileName = songStorageService.storeFile(songfile);
-            String imageFileName = imageStorageService.storeFile(imagefile);
             //lấy đường dẫn Url
             String songUrl = MvcUriComponentsBuilder.fromMethodName(SongController.class,
                     "readDetailSongFile", songFileName).build().toUri().toString();
+
+        if (imagefile != null && !imagefile.isEmpty()) {
+            // Xử lý và lưu trữ file ảnh mới (nếu có)
+            String imageFileName = imageStorageService.storeFile(imagefile);
             String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
                     "readDetailImageFile", imageFileName).build().toUri().toString();
+            song.setThumbnailUrl(urlImage);
+        } else {
+            // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
+            song.setThumbnailUrl(null);
+        }
+
 
 //        Optional<User> optionalUser = userRepository.findById(userId);
 //        if (optionalUser.isEmpty()) {
@@ -112,10 +122,9 @@ public class SongController {
             User creator = userRepository.findById(userId).orElse(null);
             Category category = categoryRepository.findById(categoryId).orElse(null);
 
-            Song song = new Song();
+
             song.setName(name);
             song.setUrl(songUrl);
-            song.setThumbnailUrl(urlImage);
             song.setCategory(category);
             song.setCreatorId(creator);
             song.setDownloadCount(0);
@@ -128,12 +137,24 @@ public class SongController {
 
     // update, upsert = update if found, otherwise insert
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject>  updateProduct(@RequestBody Song newSong, @PathVariable Long id) {
+    public ResponseEntity<ResponseObject>  updateProduct(@RequestParam("image") MultipartFile fileImage,
+                                                         @RequestBody Song newSong, @PathVariable Long id) {
         Song updateSong = songRepository.findById(id)
                 .map(song -> {
                    song.setName(newSong.getName());
                    song.setCategory(newSong.getCategory());
-                   song.setThumbnailUrl(newSong.getThumbnailUrl());
+                    if (newSong.getThumbnailUrl() != null || fileImage != null) {
+                        // Xử lý và lưu trữ file ảnh mới (nếu có)
+                        if (fileImage != null) {
+                            String imageFileName = imageStorageService.storeFile(fileImage);
+                            String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                                    "readDetailImageFile", imageFileName).build().toUri().toString();
+                            song.setThumbnailUrl(urlImage);
+                        } else {
+                            // Nếu không có file ảnh mới, sử dụng avatarUrl từ newUser
+                            song.setThumbnailUrl(newSong.getThumbnailUrl());
+                        }
+                    }
                    return songRepository.save(song);
                 }).orElseGet(() ->{
                     newSong.setId(id);
