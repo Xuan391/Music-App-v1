@@ -41,13 +41,13 @@ public class SongController {
 
     @GetMapping("/{id}")
     ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
-        Optional<Song> foundMusic = songRepository.findById(id);
-        return foundMusic.isPresent() ?
+        Optional<Song> foundSong = songRepository.findById(id);
+        return foundSong.isPresent() ?
                 ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("OK", "Find music successfully", foundMusic)
+                        new ResponseObject("OK", "Find song successfully", foundSong)
                 ):
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        new ResponseObject("False","Cannot find music with id ="+id,foundMusic)
+                        new ResponseObject("False","Cannot find song with id ="+id,foundSong)
                 );
     }
 
@@ -126,5 +126,52 @@ public class SongController {
             );
     }
 
+    // update, upsert = update if found, otherwise insert
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseObject>  updateProduct(@RequestBody Song newSong, @PathVariable Long id) {
+        Song updateSong = songRepository.findById(id)
+                .map(song -> {
+                   song.setName(newSong.getName());
+                   song.setCategory(newSong.getCategory());
+                   song.setThumbnailUrl(newSong.getThumbnailUrl());
+                   return songRepository.save(song);
+                }).orElseGet(() ->{
+                    newSong.setId(id);
+                    return songRepository.save(newSong);
+                });
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("OK","Update song successfully", updateSong)
+        );
+    }
+    @PutMapping ("/{id}/download")
+    public ResponseEntity<ResponseObject> updateDownloadCount(@PathVariable Long id) {
+        // Tìm bài hát theo songId trong cơ sở dữ liệu
+        Optional<Song> optionalSong = songRepository.findById(id);
+        if (optionalSong.isPresent()) {
+            Song song = optionalSong.get();
+            // Tăng giá trị downloadCount
+            song.setDownloadCount(song.getDownloadCount() + 1);
+            // Lưu đối tượng Song đã được cập nhật
+            Song updatedSong = songRepository.save(song);
+            return ResponseEntity.ok().body(new ResponseObject("ok", "Download count updated", updatedSong));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    //Delete a product -> DELETE method
+    @DeleteMapping("/{id}")
+    ResponseEntity<ResponseObject> deleteSong(@PathVariable Long id) {
+        boolean exists = songRepository.existsById(id);
+        if(exists){
+            songRepository.deleteById(id);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("ok", "delete song successfully","")
+            );
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ResponseObject("failed", "cannot find song to delete","")
+        );
+    }
 
 }

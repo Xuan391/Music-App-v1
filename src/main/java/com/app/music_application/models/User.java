@@ -1,5 +1,8 @@
 package com.app.music_application.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -10,6 +13,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "user")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,17 +44,21 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+//    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "playlist_id")
     private List<Playlist> playlists = new ArrayList<>();
     //orphanRemoval = true: Thuộc tính này chỉ định xóa các đối tượng con (Playlist) khi chúng không còn được tham chiếu bởi đối tượng cha (User). Nếu orphanRemoval được đặt thành true, khi một Playlist không còn tham chiếu đến User, nó sẽ tự động bị xóa khỏi cơ sở dữ liệu.
 
-    public User() {
-        // Khởi tạo một playlist với id của user
+    public void addDefaultPlaylist() {
         Playlist playlist = new Playlist();
-        playlist.setId(this.id);
         playlist.setName("Yêu thích");
+        playlist.setCreatorId(this);
+        playlist.setCreatedAt(LocalDateTime.now());
         this.playlists.add(playlist);
+    }
+    public User() {
+        addDefaultPlaylist();
     }
 
     public User(String userName, String password, String name, String avatarUrl, Set<User> followers, int followersCount, LocalDateTime createdAt, List<Playlist> playlists) {
