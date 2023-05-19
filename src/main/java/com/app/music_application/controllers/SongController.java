@@ -80,9 +80,45 @@ public class SongController {
             return ResponseEntity.noContent().build();
         }
     }
+    @PostMapping("/insertbyuser")
+    ResponseEntity<ResponseObject> insertSongByUser(@RequestParam("name") String name,
+                                              @RequestParam("image")MultipartFile imagefile,
+                                              @RequestParam("song")MultipartFile songfile,
+                                              @RequestParam("creator") Long userId) {
+        Song song = new Song();
+        // lưu trữ file
+        String songFileName = songStorageService.storeFile(songfile);
+        //lấy đường dẫn Url
+        String songUrl = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                "readDetailSongFile", songFileName).build().toUri().toString();
 
-    @PostMapping("/insert")
-    ResponseEntity<ResponseObject> insertSong(@RequestParam("name") String name,
+        if (imagefile != null && !imagefile.isEmpty()) {
+            // Xử lý và lưu trữ file ảnh mới (nếu có)
+            String imageFileName = imageStorageService.storeFile(imagefile);
+            String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                    "readDetailImageFile", imageFileName).build().toUri().toString();
+            song.setThumbnailUrl(urlImage);
+        } else {
+            // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
+            song.setThumbnailUrl(null);
+        }
+
+        User creator = userRepository.findById(userId).orElse(null);
+
+        song.setName(name);
+        song.setUrl(songUrl);
+        song.setCreatorId(creator);
+        song.setDownloadCount(0);
+        song.setListenedCount(0);
+        song.setCreatedAt(LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "Insert song successfully", songRepository.save(song))
+        );
+    }
+
+    @PostMapping("/insertbyadmin")
+    ResponseEntity<ResponseObject> insertSongByAdmin(@RequestParam("name") String name,
                                               @RequestParam("image")MultipartFile imagefile,
                                               @RequestParam("song")MultipartFile songfile,
                                               @RequestParam("category") Long categoryId,
@@ -105,7 +141,6 @@ public class SongController {
             song.setThumbnailUrl(null);
         }
 
-
 //        Optional<User> optionalUser = userRepository.findById(userId);
 //        if (optionalUser.isEmpty()) {
 //            // Xử lý khi không tìm thấy user
@@ -122,12 +157,12 @@ public class SongController {
             User creator = userRepository.findById(userId).orElse(null);
             Category category = categoryRepository.findById(categoryId).orElse(null);
 
-
             song.setName(name);
             song.setUrl(songUrl);
             song.setCategory(category);
             song.setCreatorId(creator);
             song.setDownloadCount(0);
+            song.setListenedCount(0);
             song.setCreatedAt(LocalDateTime.now());
 
             return ResponseEntity.status(HttpStatus.OK).body(
@@ -136,34 +171,46 @@ public class SongController {
     }
 
     // update, upsert = update if found, otherwise insert
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject>  updateProduct(@RequestParam("image") MultipartFile fileImage,
-                                                         @RequestBody Song newSong, @PathVariable Long id) {
+    @PutMapping("/{id}/update") // up date tên bài hát, thể loại của bài hát
+    public ResponseEntity<ResponseObject>  updateProduct(@RequestBody Song newSong, @PathVariable Long id) {
         Song updateSong = songRepository.findById(id)
                 .map(song -> {
                    song.setName(newSong.getName());
                    song.setCategory(newSong.getCategory());
-                    if (newSong.getThumbnailUrl() != null || fileImage != null) {
-                        // Xử lý và lưu trữ file ảnh mới (nếu có)
-                        if (fileImage != null) {
-                            String imageFileName = imageStorageService.storeFile(fileImage);
-                            String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
-                                    "readDetailImageFile", imageFileName).build().toUri().toString();
-                            song.setThumbnailUrl(urlImage);
-                        } else {
-                            // Nếu không có file ảnh mới, sử dụng avatarUrl từ newUser
-                            song.setThumbnailUrl(newSong.getThumbnailUrl());
-                        }
-                    }
                    return songRepository.save(song);
-                }).orElseGet(() ->{
-                    newSong.setId(id);
-                    return songRepository.save(newSong);
-                });
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("OK","Update song successfully", updateSong)
-        );
+                }).orElse(null);
+
+        if (updateSong != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK", "Update song successfully", updateSong)
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseObject("false", "Cannot find song with id=" + id, "")
+            );
+        }
     }
+
+    @PutMapping("/changeImage/{id}")
+    ResponseEntity<ResponseObject> updateImageSong(@RequestParam ("image") MultipartFile file, @PathVariable Long id){
+        try {
+            Song song = songRepository.findById(id).orElse(null);
+            String imageFileName = imageStorageService.storeFile(file);
+            String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                    "readDetailImageFile",imageFileName).build().toUri().toString();
+
+            song.setThumbnailUrl(urlImage);
+            songRepository.save(song);
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK", "changed song's image successfully", song)
+            );
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+                    new ResponseObject("false","Cannot find image file ", "")
+            );
+        }
+    }
+
     @PutMapping ("/{id}/download")
     public ResponseEntity<ResponseObject> updateDownloadCount(@PathVariable Long id) {
         // Tìm bài hát theo songId trong cơ sở dữ liệu
@@ -179,9 +226,24 @@ public class SongController {
             return ResponseEntity.notFound().build();
         }
     }
+    @PutMapping ("/{id}/listened")
+    public ResponseEntity<ResponseObject> updateListenedCount(@PathVariable Long id) {
+        // Tìm bài hát theo songId trong cơ sở dữ liệu
+        Optional<Song> optionalSong = songRepository.findById(id);
+        if (optionalSong.isPresent()) {
+            Song song = optionalSong.get();
+            // Tăng giá trị downloadCount
+            song.setListenedCount(song.getListenedCount() + 1);
+            // Lưu đối tượng Song đã được cập nhật
+            Song updatedSong = songRepository.save(song);
+            return ResponseEntity.ok().body(new ResponseObject("ok", "Download count updated", updatedSong));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     //Delete a product -> DELETE method
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     ResponseEntity<ResponseObject> deleteSong(@PathVariable Long id) {
         boolean exists = songRepository.existsById(id);
         if(exists){

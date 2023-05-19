@@ -48,7 +48,7 @@ public class ImageStorageService implements IStorageService {
             if (fileSizeInMegabytes > 5.0f){
                 throw new RuntimeException("File must be <= 5MB");
             }
-            //file must be rename, why? // phải đổi tên file khi upload, tráng xóa, ghi đè file trong folder trên server
+
             String generatedFilename = file.getOriginalFilename();
             Path destinationFilePath = this.storageFolder.resolve(Paths.get(generatedFilename))
                     .normalize().toAbsolutePath();
