@@ -88,6 +88,8 @@ public class SongController {
                                               @RequestParam("category") Long categoryId,
                                               @RequestParam("creator") Long userId) {
             // lưu trữ file
+        Song song = new Song();
+        if (songfile != null && imagefile != null) {
             String songFileName = songStorageService.storeFile(songfile);
             String imageFileName = imageStorageService.storeFile(imagefile);
             //lấy đường dẫn Url
@@ -95,6 +97,10 @@ public class SongController {
                     "readDetailSongFile", songFileName).build().toUri().toString();
             String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
                     "readDetailImageFile", imageFileName).build().toUri().toString();
+
+            song.setUrl(songUrl);
+            song.setThumbnailUrl(urlImage);
+        }
 
 //        Optional<User> optionalUser = userRepository.findById(userId);
 //        if (optionalUser.isEmpty()) {
@@ -112,10 +118,7 @@ public class SongController {
             User creator = userRepository.findById(userId).orElse(null);
             Category category = categoryRepository.findById(categoryId).orElse(null);
 
-            Song song = new Song();
             song.setName(name);
-            song.setUrl(songUrl);
-            song.setThumbnailUrl(urlImage);
             song.setCategory(category);
             song.setCreatorId(creator);
             song.setDownloadCount(0);
