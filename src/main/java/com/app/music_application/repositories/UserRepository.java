@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM  User WHERE name LIKE %:searchText%", nativeQuery = true)
-    List<Object[]> searchUsersByName(@Param("searchText") String searchText);
+    List<User> searchUsersByName(@Param("searchText") String searchText);
 }

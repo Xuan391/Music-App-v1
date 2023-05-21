@@ -10,7 +10,7 @@ import java.util.List;
 public interface SongRepository extends JpaRepository<Song, Long> {
     List<Song> findByName(String name);
     @Query(value = "SELECT * FROM  Song WHERE name LIKE %:searchText%", nativeQuery = true)
-    List<Object[]> searchSongsByName(@Param("searchText") String searchText);
+    List<Song> searchSongsByName(@Param("searchText") String searchText);
 
 
 }
