@@ -50,6 +50,15 @@ public class SongController {
                         new ResponseObject("False","Cannot find song with id ="+id,foundSong)
                 );
     }
+    @GetMapping("/top10MostListenedSongs")
+    public ResponseEntity<ResponseObject> getTop10MostListenedSongs() {
+        LocalDateTime startDate = LocalDateTime.now().minusMonths(1);
+        LocalDateTime endDate = LocalDateTime.now();
+        List<Song> top10Songs = songRepository.findTop10SongsByListenedCountAndDateRange(startDate, endDate);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("OK", "Get ListenedCount Top 10 Songs For 1 Month", top10Songs)
+        );
+    }
 
     @GetMapping("/imageFiles/{fileName:.+}")
     public ResponseEntity<byte[]> readDetailImageFile(@PathVariable String fileName) {
