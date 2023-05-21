@@ -93,8 +93,8 @@ public class UserController {
                     new ResponseObject("OK","Username are already taken", foundUsers)
             );
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject("OK", "Username is available", "")
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK", "Username not found in database", null)
             );
         }
     }
