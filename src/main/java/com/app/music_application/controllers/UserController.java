@@ -63,27 +63,34 @@ public class UserController {
                                               @RequestParam("image") MultipartFile imagefile,
                                               @RequestParam("username") String username,
                                               @RequestParam("password") String password) {
-        User user = new User();
-        if (imagefile != null && !imagefile.isEmpty()) {
-            // Xử lý và lưu trữ file ảnh mới (nếu có)
-            String imageFileName = imageStorageService.storeFile(imagefile);
-            String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
-                    "readDetailImageFile", imageFileName).build().toUri().toString();
-            user.setAvatarUrl(urlImage);
+        List<User> users = userRepository.findByUserName(username);
+        if(users.size()>0) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+                    new ResponseObject("fales", "username are already taken", "")
+            );
         } else {
-            // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
-            user.setAvatarUrl(null);
+            User user = new User();
+            if (imagefile != null && !imagefile.isEmpty()) {
+                // Xử lý và lưu trữ file ảnh mới (nếu có)
+                String imageFileName = imageStorageService.storeFile(imagefile);
+                String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                        "readDetailImageFile", imageFileName).build().toUri().toString();
+                user.setAvatarUrl(urlImage);
+            } else {
+                // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
+                user.setAvatarUrl(null);
+            }
+
+            user.setName(name);
+            user.setUserName(username);
+            user.setPassword(password);
+            user.setFollowers(new HashSet<>());
+            user.setCreatedAt(LocalDateTime.now());
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK", "Insert user successfully", userRepository.save(user))
+            );
         }
-
-        user.setName(name);
-        user.setUserName(username);
-        user.setPassword(password);
-        user.setFollowers(new HashSet<>());
-        user.setCreatedAt(LocalDateTime.now());
-
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("OK","Insert user successfully", userRepository.save(user))
-        );
     }
     @GetMapping("/checkUserName")
     public ResponseEntity<ResponseObject> checkUserName(@RequestParam ("username") String userName) {
@@ -168,8 +175,8 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}/follow")
-    public ResponseEntity<ResponseObject> followUser(@PathVariable("id") Long userId,
+    @PutMapping("/follow")
+    public ResponseEntity<ResponseObject> followUser(@RequestParam("userid") Long userId,
                                                      @RequestParam("followerId") Long followerId) {
         // Lấy thông tin User hiện tại từ cơ sở dữ liệu
         User user = userRepository.findById(userId).orElse(null);
@@ -191,8 +198,8 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
-    @PutMapping("/{userId}/unfollow/{followerId}")
-    public ResponseEntity<ResponseObject> unfollowUser(@PathVariable Long userId, @PathVariable Long followerId) {
+    @PutMapping("/unfollow")
+    public ResponseEntity<ResponseObject> unfollowUser(@RequestParam("userId") Long userId, @RequestParam("followerId") Long followerId) {
         User user = userRepository.findById(userId).orElse(null);
         User follower = userRepository.findById(followerId).orElse(null);
         if (user == null || follower == null) {
