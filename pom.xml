@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.app</groupId>
-	<artifactId>music_application</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>music_application</name>
+	<artifactId>music_app</artifactId>
+	<version>SNAPSHOT</version>
+	<name>app</name>
 	<description>Listen to music application</description>
 	<properties>
 		<java.version>17</java.version>
