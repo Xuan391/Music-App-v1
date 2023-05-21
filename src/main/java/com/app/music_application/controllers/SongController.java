@@ -235,21 +235,21 @@ public class SongController {
             return ResponseEntity.notFound().build();
         }
     }
-    @PutMapping ("/{id}/listened")
-    public ResponseEntity<ResponseObject> updateListenedCount(@PathVariable Long id) {
-        // Tìm bài hát theo songId trong cơ sở dữ liệu
-        Optional<Song> optionalSong = songRepository.findById(id);
-        if (optionalSong.isPresent()) {
-            Song song = optionalSong.get();
-            // Tăng giá trị downloadCount
-            song.setListenedCount(song.getListenedCount() + 1);
-            // Lưu đối tượng Song đã được cập nhật
-            Song updatedSong = songRepository.save(song);
-            return ResponseEntity.ok().body(new ResponseObject("ok", "Download count updated", updatedSong));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+//    @PutMapping ("/{id}/listened")
+//    public ResponseEntity<ResponseObject> updateListenedCount(@PathVariable Long id) {
+//        // Tìm bài hát theo songId trong cơ sở dữ liệu
+//        Optional<Song> optionalSong = songRepository.findById(id);
+//        if (optionalSong.isPresent()) {
+//            Song song = optionalSong.get();
+//            // Tăng giá trị downloadCount
+//            song.setListenedCount(song.getListenedCount() + 1);
+//            // Lưu đối tượng Song đã được cập nhật
+//            Song updatedSong = songRepository.save(song);
+//            return ResponseEntity.ok().body(new ResponseObject("ok", "Download count updated", updatedSong));
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 
     //Delete a product -> DELETE method
     @DeleteMapping("/delete/{id}")
