@@ -85,6 +85,19 @@ public class UserController {
                 new ResponseObject("OK","Insert user successfully", userRepository.save(user))
         );
     }
+    @GetMapping("/checkUserName")
+    public ResponseEntity<ResponseObject> checkUserName(@RequestParam ("username") String userName) {
+        List<User> foundUsers = userRepository.findByUserName(userName.trim());
+        if (!foundUsers.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK","Username are already taken", foundUsers)
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseObject("OK", "Username is available", "")
+            );
+        }
+    }
 //    @PutMapping("/update/{id}") ////////////???????????????????????????
 //    public ResponseEntity<ResponseObject>  updateUser(@RequestParam("image") MultipartFile fileImage,
 //                                                      @RequestBody User newUser, @PathVariable Long id) {
