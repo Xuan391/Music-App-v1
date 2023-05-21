@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface PlaylistRepository extends JpaRepository<Playlist, Long> {
     @Query(value = "SELECT * FROM  Playlist WHERE name LIKE %:searchText%", nativeQuery = true)
-    List<Object[]> searchPlaylistByName(@Param("searchText") String searchText);
+    List<Playlist> searchPlaylistByName(@Param("searchText") String searchText);
 }
