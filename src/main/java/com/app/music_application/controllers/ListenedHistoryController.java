@@ -23,4 +23,6 @@ public class ListenedHistoryController {
 
     @GetMapping("/ShowAll")
     List<ListenedHistory> getAllHistory() {return listenedHistoryRepository.findAll();}
+
+
 }

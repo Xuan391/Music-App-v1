@@ -2,7 +2,9 @@ package com.app.music_application.controllers;
 
 import com.app.music_application.models.ResponseObject;
 import com.app.music_application.models.SearchHistory;
+import com.app.music_application.models.User;
 import com.app.music_application.repositories.SearchHistoryRepository;
+import com.app.music_application.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,8 @@ import java.util.List;
 public class SearchHistoryController {
     @Autowired
     private SearchHistoryRepository searchHistoryRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/ShowAll")
     List<SearchHistory> getAllSearchHistory() {
@@ -27,7 +31,8 @@ public class SearchHistoryController {
 
     @GetMapping("/ShowHistoryByUserId")
     ResponseEntity<ResponseObject> getHistoryByUserId(@RequestParam("userId") Long userId) {
-        List<SearchHistory> searchHistories = searchHistoryRepository.getSearchHistoriesById(userId);
+        User user = userRepository.findById(userId).orElse(null);
+        List<SearchHistory> searchHistories = searchHistoryRepository.findByUserId(user);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("Ok","get searchHistories with userId successfully", searchHistories)
         );
