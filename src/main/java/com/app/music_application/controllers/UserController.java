@@ -100,8 +100,23 @@ public class UserController {
                     new ResponseObject("OK","Username are already taken", foundUsers)
             );
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject("OK", "Username is available", "")
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK", "data null", "")
+            );
+        }
+    }
+    @GetMapping("/login")
+    public ResponseEntity<ResponseObject> login(@RequestParam ("username") String username,
+                                                @RequestParam ("password") String password) {
+        List<User> foundUser = userRepository.checkLogin(username.trim(), password.trim());
+        if (!foundUser.isEmpty()){
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK", "Login successfully", foundUser)
+            );
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("false", "Login failed","")
             );
         }
     }
@@ -134,29 +149,52 @@ public class UserController {
 //                new ResponseObject("OK","Update user successfully", updateUser)
 //        );
 //    }
-    @PutMapping("/update/{id}") // chỉnh sửa thông tin user , form newuser gửi xuống là một json
-    public ResponseEntity<ResponseObject>  updateUser(@RequestBody User newUser, @PathVariable Long id) {
+//    @PutMapping("/update/{id}") // chỉnh sửa thông tin user , form newuser gửi xuống là một json
+//    public ResponseEntity<ResponseObject>  updateUser(@RequestBody User newUser, @PathVariable Long id) {
+//        User updateUser = userRepository.findById(id)
+//            .map(user -> {
+//                user.setName(newUser.getName());
+//                user.setUserName(newUser.getUserName());
+//                user.setPassword(newUser.getPassword());
+//                return userRepository.save(user);
+//            }).orElse(null);
+//        if (updateUser != null) {
+//            return ResponseEntity.status(HttpStatus.OK).body(
+//                    new ResponseObject("OK", "Update user successfully", updateUser)
+//            );
+//        }  else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new ResponseObject("false", "cannot find user with id="+id, "")
+//            );
+//        }
+//    }
+
+    @PutMapping("/update")
+    public ResponseEntity<ResponseObject> updateUser (@RequestParam ("userId") Long id,
+                                                      @RequestParam ("name") String name,
+                                                      @RequestParam ("username") String username,
+                                                      @RequestParam ("password") String password) {
         User updateUser = userRepository.findById(id)
-            .map(user -> {
-                user.setName(newUser.getName());
-                user.setUserName(newUser.getUserName());
-                user.setPassword(newUser.getPassword());
-                return userRepository.save(user);
-            }).orElse(null);
+                .map(user -> {
+                    user.setName(name);
+                    user.setUserName(username);
+                    user.setPassword(password);
+                    return userRepository.save(user);
+                }).orElse(null);
         if (updateUser != null) {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("OK", "Update user successfully", updateUser)
             );
         }  else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("false", "cannot find user with id="+id, "")
             );
         }
     }
 
-    @PutMapping("/changeAvatar/{id}")
+    @PutMapping("/changeAvatar")
     public ResponseEntity<ResponseObject> changeAvatarUser(@RequestParam ("image") MultipartFile imagefile,
-                                                           @PathVariable Long id) {
+                                                           @RequestParam ("userId") Long id) {
         try {
             User user = userRepository.findById(id).orElse(null);
             String imageFileName = imageStorageService.storeFile(imagefile);

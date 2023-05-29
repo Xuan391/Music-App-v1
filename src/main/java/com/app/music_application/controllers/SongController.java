@@ -180,8 +180,8 @@ public class SongController {
     }
 
     // update, upsert = update if found, otherwise insert
-    @PutMapping("/{id}/update") // up date tên bài hát, thể loại của bài hát
-    public ResponseEntity<ResponseObject>  updateProduct(@RequestBody Song newSong, @PathVariable Long id) {
+    @PutMapping("/update/{id}") // up date tên bài hát, thể loại của bài hát
+    public ResponseEntity<ResponseObject>  updateSong(@RequestBody Song newSong, @PathVariable Long id) {
         Song updateSong = songRepository.findById(id)
                 .map(song -> {
                    song.setName(newSong.getName());
@@ -200,8 +200,32 @@ public class SongController {
         }
     }
 
-    @PutMapping("/changeImage/{id}")
-    ResponseEntity<ResponseObject> updateImageSong(@RequestParam ("image") MultipartFile file, @PathVariable Long id){
+    @PutMapping("/update") // up date tên bài hát, thể loại của bài hát
+    public ResponseEntity<ResponseObject>  updateSong(@RequestParam ("name") String name,
+                                                         @RequestParam ("categoryId") Long categoryId,
+                                                         @RequestParam ("songId") Long songId) {
+        Category updateCategory = categoryRepository.findById(categoryId).orElse(null);
+        Song updateSong = songRepository.findById(songId)
+                .map(song -> {
+                    song.setName(name);
+                    song.setCategory(updateCategory);
+                    return songRepository.save(song);
+                }).orElse(null);
+
+        if (updateSong != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK", "Update song successfully", updateSong)
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseObject("false", "Cannot find song with id=" + songId, "")
+            );
+        }
+    }
+
+    @PutMapping("/changeImage")
+    ResponseEntity<ResponseObject> updateImageSong(@RequestParam ("image") MultipartFile file,
+                                                   @RequestParam Long id){
         try {
             Song song = songRepository.findById(id).orElse(null);
             String imageFileName = imageStorageService.storeFile(file);
@@ -220,8 +244,8 @@ public class SongController {
         }
     }
 
-    @PutMapping ("/{id}/download")
-    public ResponseEntity<ResponseObject> updateDownloadCount(@PathVariable Long id) {
+    @PutMapping ("/download")
+    public ResponseEntity<ResponseObject> updateDownloadCount(@RequestParam Long id) {
         // Tìm bài hát theo songId trong cơ sở dữ liệu
         Optional<Song> optionalSong = songRepository.findById(id);
         if (optionalSong.isPresent()) {
