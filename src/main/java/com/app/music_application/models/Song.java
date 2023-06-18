@@ -3,7 +3,6 @@ package com.app.music_application.models;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "song")
 public class Song {
@@ -27,10 +26,13 @@ public class Song {
     private LocalDateTime createdAt;
     @Column(name = "download_count")
     private int downloadCount;
+    @Column(name = "listened_count")
+    private int listenedCount;
 
     public Song() {}
 
-    public Song(String name, Category category, String url, String thumbnailUrl, User creatorId, LocalDateTime createdAt, int downloadCount) {
+    public Song(String name, Category category, String url, String thumbnailUrl, User creatorId, LocalDateTime createdAt,
+                int downloadCount, int listenedCount) {
         this.name = name;
         this.category = category;
         this.url = url;
@@ -38,6 +40,7 @@ public class Song {
         this.creatorId = creatorId;
         this.createdAt = createdAt;
         this.downloadCount = downloadCount;
+        this.listenedCount = listenedCount;
     }
 
     public Long getId() {
@@ -104,6 +107,14 @@ public class Song {
         this.downloadCount = downloadCount;
     }
 
+    public int getListenedCount() {
+        return listenedCount;
+    }
+
+    public void setListenedCount(int listenedCount) {
+        this.listenedCount = listenedCount;
+    }
+
     @Override
     public String toString() {
         return "Song{" +
@@ -115,6 +126,7 @@ public class Song {
                 ", creatorId=" + creatorId +
                 ", createdAt=" + createdAt +
                 ", downloadCount=" + downloadCount +
+                ", listenedCount=" + listenedCount +
                 '}';
     }
 }

@@ -1,16 +1,15 @@
 package com.app.music_application.models;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 @Entity
 @Table(name = "users")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -20,7 +19,7 @@ public class User {
     private Long id;
     @Column(nullable = false, unique = true, length = 100,name = "user_name")
     private String userName;
-    @Column(nullable = false, length = 300,name = "password")
+    @Column(nullable = false,name = "password")
     private String password;
     @Column(name = "name")
     private String name;

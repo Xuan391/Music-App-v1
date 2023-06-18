@@ -22,7 +22,7 @@ public class CategoryController {
         return categoryRepository.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/show/{id}")
     ResponseEntity<ResponseObject> findById(@PathVariable Long id){
         Optional<Category> foundCategory = categoryRepository.findById(id);
         return foundCategory.isPresent() ?
@@ -34,37 +34,43 @@ public class CategoryController {
                 );
     }
     @PostMapping("/insert")
-    ResponseEntity<ResponseObject> insertCategory(@RequestBody Category newCategory) {
+    ResponseEntity<ResponseObject> insertCategory(@RequestParam("name") String name) {
         // check 2 product must not have the same name !!
-        List<Category> foundCategory = categoryRepository.findByName(newCategory.getName().trim());
+        List<Category> foundCategory = categoryRepository.findByName(name.trim());
         if(foundCategory.size() > 0) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                     new ResponseObject("failed","Category name already taken", "")
             );
         }
+        Category category = new Category();
+        category.setName(name);
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok","Insert category successfully", categoryRepository.save(newCategory))
+                new ResponseObject("ok","Insert category successfully", categoryRepository.save(category))
         );
     }
 
     // update, upsert = update if found, otherwise insert
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     ResponseEntity<ResponseObject> updateCategory(@RequestBody Category newCategory, @PathVariable Long id ){
         Category updateCategory =  categoryRepository.findById(id)
                 .map(category -> {
                     category.setName(newCategory.getName());
                     return categoryRepository.save(category);
-                }).orElseGet(()->{ // giá trị trả về của hàm orElseGet() là một đối tượng
-                    newCategory.setId(id);
-                    return categoryRepository.save(newCategory);
-                });
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok","Update category successfully", updateCategory)
-        );
+                }).orElse(null);
+        if (updateCategory != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("ok","Update category successfully", updateCategory)
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new ResponseObject("false","cannot find category with id="+id, "")
+            );
+        }
+
     }
 
     //Delete a product -> DELETE method
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     ResponseEntity<ResponseObject> deleteCategory(@PathVariable Long id) {
         boolean exists = categoryRepository.existsById(id);
         if(exists){
