@@ -28,11 +28,13 @@ public class Song {
     private int downloadCount;
     @Column(name = "listened_count")
     private int listenedCount;
+    @Column(name = "singer")
+    private String singer;
 
     public Song() {}
 
-    public Song(String name, Category category, String url, String thumbnailUrl, User creatorId, LocalDateTime createdAt,
-                int downloadCount, int listenedCount) {
+    public Song(Long id, String name, Category category, String url, String thumbnailUrl, User creatorId, LocalDateTime createdAt, int downloadCount, int listenedCount, String singer) {
+        this.id = id;
         this.name = name;
         this.category = category;
         this.url = url;
@@ -41,6 +43,7 @@ public class Song {
         this.createdAt = createdAt;
         this.downloadCount = downloadCount;
         this.listenedCount = listenedCount;
+        this.singer = singer;
     }
 
     public Long getId() {

@@ -3,6 +3,7 @@ package com.app.music_application.controllers;
 import com.app.music_application.models.ResponseObject;
 import com.app.music_application.models.Song;
 import com.app.music_application.models.User;
+import com.app.music_application.models.UserDTO;
 import com.app.music_application.repositories.UserRepository;
 import com.app.music_application.services.ImageStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,6 +192,8 @@ public class UserController {
             );
         }
     }
+
+
 
     @PutMapping("/changeAvatar")
     public ResponseEntity<ResponseObject> changeAvatarUser(@RequestParam ("image") MultipartFile imagefile,

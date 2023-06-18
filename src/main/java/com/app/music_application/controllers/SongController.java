@@ -14,9 +14,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +37,7 @@ public class SongController {
     private ImageStorageService imageStorageService;
     @Autowired
     private SongStorageService songStorageService;
+
 
     @GetMapping("/ShowAll")
     List<Song> getAllSongs() {return songRepository.findAll();}
@@ -132,9 +135,13 @@ public class SongController {
                                               @RequestParam("song")MultipartFile songfile,
                                               @RequestParam("category") Long categoryId,
                                               @RequestParam("creator") Long userId) {
+        // Tạo SSE emitter để gửi thông tin tiến trình tải lên cho client
+        SseEmitter uploadProgressEmitter = songStorageService.getUploadProgressEmitter();
             Song song = new Song();
             // lưu trữ file
             String songFileName = songStorageService.storeFile(songfile);
+            // Khi hoàn thành việc tải lên, đảm bảo đóng SSE emitter
+            uploadProgressEmitter.complete();
             //lấy đường dẫn Url
             String songUrl = MvcUriComponentsBuilder.fromMethodName(SongController.class,
                     "readDetailSongFile", songFileName).build().toUri().toString();
@@ -179,6 +186,12 @@ public class SongController {
             );
     }
 
+    @GetMapping("/progress")
+    public SseEmitter uploadProgress() {
+        // Trả về SSE emitter để client có thể theo dõi tiến trình tải lên
+        return songStorageService.getUploadProgressEmitter();
+    }
+
     // update, upsert = update if found, otherwise insert
     @PutMapping("/update/{id}") // up date tên bài hát, thể loại của bài hát
     public ResponseEntity<ResponseObject>  updateSong(@RequestBody Song newSong, @PathVariable Long id) {
@@ -217,7 +230,7 @@ public class SongController {
                     new ResponseObject("OK", "Update song successfully", updateSong)
             );
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("false", "Cannot find song with id=" + songId, "")
             );
         }

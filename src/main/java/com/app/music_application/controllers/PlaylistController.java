@@ -3,6 +3,7 @@ package com.app.music_application.controllers;
 import com.app.music_application.models.*;
 import com.app.music_application.repositories.PlaylistRepository;
 import com.app.music_application.repositories.SongRepository;
+import com.app.music_application.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,8 @@ public class PlaylistController {
     private PlaylistRepository playlistRepository;
     @Autowired
     private SongRepository songRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/ShowAll")
     List<Playlist> getAllPlaylists() {
@@ -39,20 +42,37 @@ public class PlaylistController {
                         new ResponseObject("false","Cannot find playlist with id = "+id, "")
                 );
     }
+
+    @GetMapping ("/ListPlaylistByUser")
+    ResponseEntity<ResponseObject> listPlaylistByUser(@RequestParam("userId") Long userId) {
+        List<Playlist> foundPlaylist = playlistRepository.searchPlaylistByCreatorId(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("OK", "get all playlist sucessfully",foundPlaylist)
+        );
+    }
     @PostMapping("/insert")
     ResponseEntity<ResponseObject> insertUser(@RequestParam("name") String name,
                                               @RequestParam("creator") Long userId ) {
 
-        Playlist playlist = new Playlist();
+        User creator = userRepository.findById(userId).orElse(null);
+        if(creator !=null) {
+            Playlist playlist = new Playlist();
 
-        playlist.setName(name);
-        playlist.setSongs(new HashSet<>());
-        playlist.setCreatedAt(LocalDateTime.now());
-        playlist.setFavorite(false);
+            playlist.setName(name);
+            playlist.setSongs(new HashSet<>());
+            playlist.setCreatedAt(LocalDateTime.now());
+            playlist.setFavorite(false);
+            playlist.setCreatorId(creator);
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("OK","Insert playlist successfully", playlistRepository.save(playlist))
-        );
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK", "Insert playlist successfully", playlistRepository.save(playlist))
+            );
+        } else
+        {
+            return ResponseEntity.status((HttpStatus.OK)).body(
+                    new ResponseObject("false","Can't add playlist due to userId not found","")
+            );
+        }
     }
 //    @PutMapping("/update/{id}")
 //    public ResponseEntity<ResponseObject>  updateUser(@RequestBody Playlist newPlaylist, @PathVariable Long id) {
@@ -107,15 +127,15 @@ public class PlaylistController {
             playlist.setSongs(songs);
             // Lưu các thay đổi vào cơ sở dữ liệu
             playlistRepository.save(playlist);
-            return ResponseEntity.ok().body(new ResponseObject("OK", "add song to playlist successfully", playlist));
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("OK", "add song to playlist successfully", playlist));
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("false", "cannot found song or playlist by id", playlist));
         }
     }
 
     @DeleteMapping("/deletesongfromplaylist")
-    public ResponseEntity<ResponseObject> removeSongFromPlaylist(@RequestParam Long playlistId,
-                                                                 @RequestParam Long songId) {
+    public ResponseEntity<ResponseObject> removeSongFromPlaylist(@RequestParam("playlist") Long playlistId,
+                                                                 @RequestParam("song") Long songId) {
         Playlist playlist = playlistRepository.findById(playlistId).orElse(null);
         Song song = songRepository.findById(songId).orElse(null);
 
@@ -129,11 +149,11 @@ public class PlaylistController {
         playlistRepository.save(playlist);
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("OK", "Song removed from playlist successfully", null)
+                new ResponseObject("OK", "Song removed from playlist successfully", playlist)
         );
     }
     @DeleteMapping("/delete")
-    ResponseEntity<ResponseObject> deleteUser(@RequestParam Long id) {
+    ResponseEntity<ResponseObject> deleteUser(@RequestParam (name = "id") Long id) {
         boolean exists = playlistRepository.existsById(id);
         if(exists){
             playlistRepository.deleteById(id);
