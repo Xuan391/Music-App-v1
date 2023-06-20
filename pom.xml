@@ -9,8 +9,8 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.app</groupId>
-	<artifactId>music_application</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>music_app</artifactId>
+	<version>--SNAPSHOT</version>
 	<name>music_application</name>
 	<description>Listen to music application</description>
 	<properties>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<scope>42.6.0</scope>
+			<version>42.6.0</version>
 		</dependency>
 
 		<dependency>
