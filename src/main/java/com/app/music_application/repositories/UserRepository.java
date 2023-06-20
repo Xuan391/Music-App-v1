@@ -10,6 +10,9 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByUserName(String userName);
-    @Query(value = "SELECT * FROM  User WHERE name LIKE %:searchText%", nativeQuery = true)
+    @Query(value = "SELECT * FROM  users WHERE name LIKE %:searchText%", nativeQuery = true)
     List<User> searchUsersByName(@Param("searchText") String searchText);
+
+    @Query(value = "SELECT * FROM users WHERE user_name LIKE :username AND password like :password", nativeQuery = true)
+    List<User> checkLogin(@Param("username") String username, @Param("password") String password);
 }

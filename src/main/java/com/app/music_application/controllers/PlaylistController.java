@@ -54,12 +54,30 @@ public class PlaylistController {
                 new ResponseObject("OK","Insert playlist successfully", playlistRepository.save(playlist))
         );
     }
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ResponseObject>  updateUser(@RequestBody Playlist newPlaylist, @PathVariable Long id) {
+//    @PutMapping("/update/{id}")
+//    public ResponseEntity<ResponseObject>  updateUser(@RequestBody Playlist newPlaylist, @PathVariable Long id) {
+//        Playlist updatePlaylist = playlistRepository.findById(id)
+//                .map(playlist -> {
+//                    playlist.setName(newPlaylist.getName());
+//                    playlist.setSongs(newPlaylist.getSongs());
+//                    return playlistRepository.save(playlist);
+//                }).orElse(null);
+//        if (updatePlaylist != null) {
+//            return ResponseEntity.status(HttpStatus.OK).body(
+//                    new ResponseObject("OK", "Update playlist successfully", updatePlaylist)
+//            );
+//        } else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                    new ResponseObject("false", "cannot find playlist with id="+id, "")
+//            );
+//        }
+//    }
+    @PutMapping("/update") // thay doi ten cua playlist
+    public ResponseEntity<ResponseObject>  updateUser(@RequestParam ("name") String name,
+                                                      @RequestParam("playlist") Long id) {
         Playlist updatePlaylist = playlistRepository.findById(id)
                 .map(playlist -> {
-                    playlist.setName(newPlaylist.getName());
-                    playlist.setSongs(newPlaylist.getSongs());
+                    playlist.setName(name);
                     return playlistRepository.save(playlist);
                 }).orElse(null);
         if (updatePlaylist != null) {
@@ -67,13 +85,14 @@ public class PlaylistController {
                     new ResponseObject("OK", "Update playlist successfully", updatePlaylist)
             );
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("false", "cannot find playlist with id="+id, "")
             );
         }
     }
-    @PutMapping("/{playlistId}/addsong/{songId}")
-    public ResponseEntity<ResponseObject> followUser(@PathVariable("id") Long playlistId,
+
+    @PutMapping("/addsongtoplaylist")
+    public ResponseEntity<ResponseObject> followUser(@RequestParam("playlist") Long playlistId,
                                                      @RequestParam("song") Long songId) {
         // Lấy thông tin Playlist hiện tại từ cơ sở dữ liệu
         Playlist playlist = playlistRepository.findById(playlistId).orElse(null);
@@ -94,13 +113,14 @@ public class PlaylistController {
         }
     }
 
-    @DeleteMapping("/{playlistId}/deletesong/{songId}")
-    public ResponseEntity<ResponseObject> removeSongFromPlaylist(@PathVariable Long playlistId, @PathVariable Long songId) {
+    @DeleteMapping("/deletesongfromplaylist")
+    public ResponseEntity<ResponseObject> removeSongFromPlaylist(@RequestParam Long playlistId,
+                                                                 @RequestParam Long songId) {
         Playlist playlist = playlistRepository.findById(playlistId).orElse(null);
         Song song = songRepository.findById(songId).orElse(null);
 
         if (playlist == null || song == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ERROR", "Playlist or song not found", null)
             );
         }
@@ -112,8 +132,8 @@ public class PlaylistController {
                 new ResponseObject("OK", "Song removed from playlist successfully", null)
         );
     }
-    @DeleteMapping("/delete/{id}")
-    ResponseEntity<ResponseObject> deleteUser(@PathVariable Long id) {
+    @DeleteMapping("/delete")
+    ResponseEntity<ResponseObject> deleteUser(@RequestParam Long id) {
         boolean exists = playlistRepository.existsById(id);
         if(exists){
             playlistRepository.deleteById(id);

@@ -11,6 +11,7 @@ import java.util.List;
 public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Long> {
     SearchHistory findBySearchQuery(String searchQuery);
     SearchHistory findByUserIdAndSearchQuery(User user, String searchQuery);
+    List<SearchHistory> findByUserId(User userId);
     @Query(value = "SELECT * FROM search_history WHERE user_id = :userId", nativeQuery = true)
     List<SearchHistory> getSearchHistoriesById(@Param("userId") Long id);
 
