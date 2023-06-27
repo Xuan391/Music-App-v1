@@ -25,9 +25,9 @@ public class ImageController {
         try {
         String generatedFileName = imageStorageService.storeFile(file);
         String urlImage = MvcUriComponentsBuilder.fromMethodName(ImageController.class,
-                    "readDetailImageFile", generatedFileName).build().toUri().toString();
+                    "readDetailFile", generatedFileName).build().toUri().toString();
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ImageReponse(urlImage, "multipart/form-data")
+                new ImageReponse(""+urlImage, "multipart/form-data")
         );
     }catch (Exception exception) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
