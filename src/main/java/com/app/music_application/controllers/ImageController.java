@@ -1,5 +1,6 @@
 package com.app.music_application.controllers;
 
+import com.app.music_application.models.ImageReponse;
 import com.app.music_application.models.ResponseObject;
 import com.app.music_application.services.ImageStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +21,17 @@ public class ImageController {
     private ImageStorageService imageStorageService;
 
     @PostMapping("/upload")
-    public ResponseEntity<ResponseObject> uploadImage(@RequestParam("file") MultipartFile file){
+    public ResponseEntity<ImageReponse> uploadImage(@RequestParam("file") MultipartFile file){
         try {
         String generatedFileName = imageStorageService.storeFile(file);
+        String urlImage = MvcUriComponentsBuilder.fromMethodName(ImageController.class,
+                    "readDetailImageFile", generatedFileName).build().toUri().toString();
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "upload file successfully", generatedFileName)
+                new ImageReponse(urlImage, "multipart/form-data")
         );
     }catch (Exception exception) {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                new ResponseObject("ok", exception.getMessage(), "")
+                new ImageReponse("","multipart/form-data")
         );
     }
     }
