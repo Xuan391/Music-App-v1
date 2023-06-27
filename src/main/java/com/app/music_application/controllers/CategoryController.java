@@ -71,7 +71,7 @@ public class CategoryController {
 
     //Delete a product -> DELETE method
     @DeleteMapping("/delete/{id}")
-    ResponseEntity<ResponseObject> deleteCategory(@PathVariable Long id) {
+    ResponseEntity<ResponseObject> deleteCategory(@RequestParam(name = "id") Long id) {
         boolean exists = categoryRepository.existsById(id);
         if(exists){
             categoryRepository.deleteById(id);
@@ -79,8 +79,10 @@ public class CategoryController {
                     new ResponseObject("ok", "delete category successfully","")
             );
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new ResponseObject("failed", "cannot find category to delete","")
-        );
+        else {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("failed", "cannot find category to delete", "")
+            );
+        }
     }
 }

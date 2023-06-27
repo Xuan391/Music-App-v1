@@ -290,7 +290,7 @@ public class SongController {
 
     //Delete a product -> DELETE method
     @DeleteMapping("/delete/{id}")
-    ResponseEntity<ResponseObject> deleteSong(@PathVariable Long id) {
+    ResponseEntity<ResponseObject> deleteSong(@RequestParam(name = "id") Long id) {
         boolean exists = songRepository.existsById(id);
         if(exists){
             songRepository.deleteById(id);
@@ -298,9 +298,11 @@ public class SongController {
                     new ResponseObject("ok", "delete song successfully","")
             );
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new ResponseObject("failed", "cannot find song to delete","")
-        );
+        else {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("failed", "cannot find song to delete", "")
+            );
+        }
     }
 
 }

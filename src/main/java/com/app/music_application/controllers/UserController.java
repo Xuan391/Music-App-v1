@@ -255,7 +255,7 @@ public class UserController {
         );
     }
     @DeleteMapping("/delete/{id}")
-    ResponseEntity<ResponseObject> deleteUser(@PathVariable Long id) {
+    ResponseEntity<ResponseObject> deleteUser(@RequestParam(name = "id") Long id) {
         boolean exists = userRepository.existsById(id);
         if(exists){
             userRepository.deleteById(id);
@@ -263,9 +263,11 @@ public class UserController {
                     new ResponseObject("ok", "delete user successfully","")
             );
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new ResponseObject("failed", "cannot find user to delete","")
-        );
+        else {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("failed", "cannot find user to delete", "")
+            );
+        }
     }
 
 }

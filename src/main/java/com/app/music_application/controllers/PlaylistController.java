@@ -161,9 +161,11 @@ public class PlaylistController {
                     new ResponseObject("ok", "delete playlist successfully","")
             );
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new ResponseObject("failed", "cannot find playlist to delete","")
-        );
+        else {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("failed", "cannot find playlist to delete", "")
+            );
+        }
     }
 }
 

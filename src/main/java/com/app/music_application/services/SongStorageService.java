@@ -32,8 +32,7 @@ public class SongStorageService implements IStorageService {
     }
 
 
-    public SongStorageService(SimpMessagingTemplate messagingTemplate) {
-
+    public SongStorageService() {
         try {
             Files.createDirectories(storageFolder);
         }
@@ -80,7 +79,6 @@ public class SongStorageService implements IStorageService {
                 int bytesRead;
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     // Lưu trữ file
-
                     uploadedBytes += bytesRead;
                     double progress = (double) uploadedBytes / fileSize * 100;
                     UploadProgress uploadProgress = new UploadProgress(uploadedBytes,fileSize,progress);
