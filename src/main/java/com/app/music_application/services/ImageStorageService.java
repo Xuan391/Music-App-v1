@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -22,10 +23,15 @@ public class ImageStorageService implements IStorageService {
     public ImageStorageService() {
         try{
             Files.createDirectories(storageFolder);
+            File directory = new File("uploads/images");
+            System.out.println(directory.exists()); // Kiểm tra xem thư mục có tồn tại hay không
+            System.out.println(directory.isDirectory()); // Kiểm tra xem đó có phải là thư mục hay không
+            System.out.println(directory.canWrite()); // Kiểm tra quyền ghi
         } catch (IOException exception) {
             throw new RuntimeException("Cannot initialize storage", exception);
         }
     }
+
     private boolean isImageFile(MultipartFile file) {
         //let install FileNameUtils
         String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename()); // dùng hàm getExtension để lấy đuôi file
