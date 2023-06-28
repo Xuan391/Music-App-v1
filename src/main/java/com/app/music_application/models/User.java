@@ -6,10 +6,8 @@ import jakarta.persistence.*;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 @Entity
 @Table(name = "user")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -39,6 +37,9 @@ public class User {
     public int getFollowersCount() {
         return followers.size();
     }
+
+    @OneToMany(mappedBy = "creatorId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<Song> song;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -153,5 +154,13 @@ public class User {
                 ", createdAt=" + createdAt +
                 ", playlists=" + playlists +
                 '}';
+    }
+
+    public Collection<Song> getSong() {
+        return song;
+    }
+
+    public void setSong(Collection<Song> song) {
+        this.song = song;
     }
 }

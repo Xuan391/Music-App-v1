@@ -1,10 +1,8 @@
 package com.app.music_application.controllers;
 
-import com.app.music_application.models.Category;
-import com.app.music_application.models.ResponseObject;
-import com.app.music_application.models.Song;
-import com.app.music_application.models.User;
+import com.app.music_application.models.*;
 import com.app.music_application.repositories.CategoryRepository;
+import com.app.music_application.repositories.ListenedHistoryRepository;
 import com.app.music_application.repositories.SongRepository;
 import com.app.music_application.repositories.UserRepository;
 import com.app.music_application.services.ImageStorageService;
@@ -37,6 +35,9 @@ public class SongController {
     private ImageStorageService imageStorageService;
     @Autowired
     private SongStorageService songStorageService;
+
+    @Autowired
+    private ListenedHistoryRepository listenedHistoryRepository;
 
 
     @GetMapping("/ShowAll")
@@ -293,6 +294,11 @@ public class SongController {
     ResponseEntity<ResponseObject> deleteSong(@RequestParam(name = "id") Long id) {
         boolean exists = songRepository.existsById(id);
         if(exists){
+//            Song song = songRepository.findById(id).orElse(null);
+//            List<ListenedHistory> listenedHistories = listenedHistoryRepository.getListenedHistoriesBySongId(song);
+//            for (ListenedHistory listenedHistory : listenedHistories) {
+//                listenedHistoryRepository.deleteById(listenedHistory.getId());
+//            }
             songRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "delete song successfully","")

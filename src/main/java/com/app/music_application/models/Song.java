@@ -1,8 +1,12 @@
 package com.app.music_application.models;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+
 @Entity
 @Table(name = "song")
 public class Song {
@@ -19,7 +23,7 @@ public class Song {
     private String url;
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "creator_id")
     private User creatorId;
     @Column(name = "created_at")
@@ -30,7 +34,8 @@ public class Song {
     private int listenedCount;
     @Column(name = "singer")
     private String singer;
-
+    @OneToMany(mappedBy = "songId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<ListenedHistory> listenedHistories;
     public Song() {}
 
     public Song(Long id, String name, Category category, String url, String thumbnailUrl, User creatorId, LocalDateTime createdAt, int downloadCount, int listenedCount, String singer) {

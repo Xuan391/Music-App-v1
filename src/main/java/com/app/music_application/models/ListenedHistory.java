@@ -1,6 +1,8 @@
 package com.app.music_application.models;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -15,8 +17,9 @@ public class ListenedHistory {
     @JoinColumn(name = "user_id")
     private User userId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "songId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Song songId;
 
     @Column(name = "listened_time")
