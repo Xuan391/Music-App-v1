@@ -32,13 +32,11 @@ public class Song {
     private int downloadCount;
     @Column(name = "listened_count")
     private int listenedCount;
-    @Column(name = "singer")
-    private String singer;
     @OneToMany(mappedBy = "songId", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<ListenedHistory> listenedHistories;
     public Song() {}
 
-    public Song(Long id, String name, Category category, String url, String thumbnailUrl, User creatorId, LocalDateTime createdAt, int downloadCount, int listenedCount, String singer) {
+    public Song(Long id, String name, Category category, String url, String thumbnailUrl, User creatorId, LocalDateTime createdAt, int downloadCount, int listenedCount) {
         this.id = id;
         this.name = name;
         this.category = category;
@@ -48,7 +46,6 @@ public class Song {
         this.createdAt = createdAt;
         this.downloadCount = downloadCount;
         this.listenedCount = listenedCount;
-        this.singer = singer;
     }
 
     public Long getId() {

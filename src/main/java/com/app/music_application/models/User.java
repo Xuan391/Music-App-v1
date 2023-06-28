@@ -46,7 +46,7 @@ public class User {
 
 //    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "playlist_id")
+    @JoinColumn(name = "id")
     private List<Playlist> playlists = new ArrayList<>();
     //orphanRemoval = true: Thuộc tính này chỉ định xóa các đối tượng con (Playlist) khi chúng không còn được tham chiếu bởi đối tượng cha (User). Nếu orphanRemoval được đặt thành true, khi một Playlist không còn tham chiếu đến User, nó sẽ tự động bị xóa khỏi cơ sở dữ liệu.
 
