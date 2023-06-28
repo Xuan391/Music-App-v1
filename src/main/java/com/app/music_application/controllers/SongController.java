@@ -289,7 +289,7 @@ public class SongController {
 //    }
 
     //Delete a product -> DELETE method
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete")
     ResponseEntity<ResponseObject> deleteSong(@RequestParam(name = "id") Long id) {
         boolean exists = songRepository.existsById(id);
         if(exists){

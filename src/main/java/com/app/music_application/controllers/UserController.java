@@ -254,7 +254,7 @@ public class UserController {
                 new ResponseObject("OK", "Unfollow user successfully", null)
         );
     }
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete")
     ResponseEntity<ResponseObject> deleteUser(@RequestParam(name = "id") Long id) {
         boolean exists = userRepository.existsById(id);
         if(exists){
