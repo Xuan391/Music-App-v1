@@ -1,11 +1,15 @@
 package com.app.music_application.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "song")
@@ -23,7 +27,7 @@ public class Song {
     private String url;
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creatorId;
     @Column(name = "created_at")
@@ -34,6 +38,10 @@ public class Song {
     private int listenedCount;
     @OneToMany(mappedBy = "songId", cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<ListenedHistory> listenedHistories;
+
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @OneToMany(mappedBy = "song", cascade = CascadeType.REMOVE)
+    private Set<PlaylistSong> playlistSongs = new HashSet<>();
     public Song() {}
 
     public Song(Long id, String name, Category category, String url, String thumbnailUrl, User creatorId, LocalDateTime createdAt, int downloadCount, int listenedCount) {

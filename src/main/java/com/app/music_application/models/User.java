@@ -45,11 +45,15 @@ public class User {
     private LocalDateTime createdAt;
 
 //    @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "id")
+    @OneToMany(mappedBy = "creatorId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Playlist> playlists = new ArrayList<>();
     //orphanRemoval = true: Thuộc tính này chỉ định xóa các đối tượng con (Playlist) khi chúng không còn được tham chiếu bởi đối tượng cha (User). Nếu orphanRemoval được đặt thành true, khi một Playlist không còn tham chiếu đến User, nó sẽ tự động bị xóa khỏi cơ sở dữ liệu.
 
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ListenedHistory> listenedHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SearchHistory> searchHistories = new ArrayList<>();
     public void addDefaultPlaylist() {
         Playlist playlist = new Playlist();
         playlist.setName("Yêu thích");

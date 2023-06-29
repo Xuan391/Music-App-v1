@@ -31,8 +31,8 @@ public class PlaylistController {
     List<Playlist> getAllPlaylists() {
         return playlistRepository.findAll();
     }
-    @GetMapping("/show/{id}")
-    ResponseEntity<ResponseObject> findById(@PathVariable Long id){
+    @GetMapping("/show")
+    ResponseEntity<ResponseObject> findById(@RequestParam (name = "id") Long id){
         Optional<Playlist> foundPlaylist = playlistRepository.findById(id);
         return foundPlaylist.isPresent() ?
                 ResponseEntity.status(HttpStatus.OK).body(
