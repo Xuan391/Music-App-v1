@@ -1,5 +1,7 @@
 package com.app.music_application.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
@@ -29,6 +31,7 @@ public class Song {
     private String thumbnailUrl;
     @ManyToOne
     @JoinColumn(name = "creator_id")
+    @JsonIdentityReference(alwaysAsId = true)
     private User creator;
     @Column(name = "created_at")
     private LocalDateTime createdAt;

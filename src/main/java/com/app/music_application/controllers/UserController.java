@@ -42,8 +42,8 @@ public class UserController {
                 ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("OK", "Query product successfully",foundUser)
                 ):
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        new ResponseObject("false","Cannot find user with id = "+id, "")
+                ResponseEntity.status(HttpStatus.OK).body(
+                        new ResponseObject("false","Cannot find user with id = "+id, null)
                 );
     }
     @GetMapping("/imageFiles/{fileName:.+}")
