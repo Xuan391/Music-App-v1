@@ -1,10 +1,8 @@
 package com.app.music_application.controllers;
 
-import com.app.music_application.models.Category;
-import com.app.music_application.models.ResponseObject;
-import com.app.music_application.models.Song;
-import com.app.music_application.models.User;
+import com.app.music_application.models.*;
 import com.app.music_application.repositories.CategoryRepository;
+import com.app.music_application.repositories.ListenedHistoryRepository;
 import com.app.music_application.repositories.SongRepository;
 import com.app.music_application.repositories.UserRepository;
 import com.app.music_application.services.ImageStorageService;
@@ -14,9 +12,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +35,10 @@ public class SongController {
     private ImageStorageService imageStorageService;
     @Autowired
     private SongStorageService songStorageService;
+
+    @Autowired
+    private ListenedHistoryRepository listenedHistoryRepository;
+
 
     @GetMapping("/ShowAll")
     List<Song> getAllSongs() {return songRepository.findAll();}
@@ -116,7 +120,7 @@ public class SongController {
 
         song.setName(name);
         song.setUrl(songUrl);
-        song.setCreatorId(creator);
+        song.setCreator(creator);
         song.setDownloadCount(0);
         song.setListenedCount(0);
         song.setCreatedAt(LocalDateTime.now());
@@ -132,9 +136,13 @@ public class SongController {
                                               @RequestParam("song")MultipartFile songfile,
                                               @RequestParam("category") Long categoryId,
                                               @RequestParam("creator") Long userId) {
+        // Tạo SSE emitter để gửi thông tin tiến trình tải lên cho client
+        SseEmitter uploadProgressEmitter = songStorageService.getUploadProgressEmitter();
             Song song = new Song();
             // lưu trữ file
             String songFileName = songStorageService.storeFile(songfile);
+            // Khi hoàn thành việc tải lên, đảm bảo đóng SSE emitter
+            uploadProgressEmitter.complete();
             //lấy đường dẫn Url
             String songUrl = MvcUriComponentsBuilder.fromMethodName(SongController.class,
                     "readDetailSongFile", songFileName).build().toUri().toString();
@@ -169,7 +177,7 @@ public class SongController {
             song.setName(name);
             song.setUrl(songUrl);
             song.setCategory(category);
-            song.setCreatorId(creator);
+            song.setCreator(creator);
             song.setDownloadCount(0);
             song.setListenedCount(0);
             song.setCreatedAt(LocalDateTime.now());
@@ -177,6 +185,12 @@ public class SongController {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "Insert song successfully", songRepository.save(song))
             );
+    }
+
+    @GetMapping("/progress")
+    public SseEmitter uploadProgress() {
+        // Trả về SSE emitter để client có thể theo dõi tiến trình tải lên
+        return songStorageService.getUploadProgressEmitter();
     }
 
     // update, upsert = update if found, otherwise insert
@@ -217,7 +231,7 @@ public class SongController {
                     new ResponseObject("OK", "Update song successfully", updateSong)
             );
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("false", "Cannot find song with id=" + songId, "")
             );
         }
@@ -276,18 +290,25 @@ public class SongController {
 //    }
 
     //Delete a product -> DELETE method
-    @DeleteMapping("/delete/{id}")
-    ResponseEntity<ResponseObject> deleteSong(@PathVariable Long id) {
+    @DeleteMapping("/delete")
+    ResponseEntity<ResponseObject> deleteSong(@RequestParam(name = "id") Long id) {
         boolean exists = songRepository.existsById(id);
         if(exists){
+//            Song song = songRepository.findById(id).orElse(null);
+//            List<ListenedHistory> listenedHistories = listenedHistoryRepository.getListenedHistoriesBySongId(song);
+//            for (ListenedHistory listenedHistory : listenedHistories) {
+//                listenedHistoryRepository.deleteById(listenedHistory.getId());
+//            }
             songRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "delete song successfully","")
             );
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new ResponseObject("failed", "cannot find song to delete","")
-        );
+        else {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("failed", "cannot find song to delete", "")
+            );
+        }
     }
 
 }

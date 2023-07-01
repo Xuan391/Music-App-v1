@@ -1,6 +1,11 @@
 package com.app.music_application.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,9 +19,10 @@ public class Playlist {
     private Long id;
     @Column(name = "name")
     private String name;
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne
     @JoinColumn(name = "creator_id")
-    private User creatorId;
+    private User creator;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     @Column(name = "is_favorite")
@@ -27,13 +33,14 @@ public class Playlist {
             joinColumns = @JoinColumn(name = "playlist_id"),
             inverseJoinColumns = @JoinColumn(name = "song_id")
     )
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Song> songs = new HashSet<>();
 
     public Playlist(){}
 
     public Playlist(String name, User creatorId, LocalDateTime createdAt, Set<Song> songs) {
         this.name = name;
-        this.creatorId = creatorId;
+        this.creator = creatorId;
         this.createdAt = createdAt;
         this.songs = songs;
     }
@@ -54,12 +61,12 @@ public class Playlist {
         this.name = name;
     }
 
-    public User getCreatorId() {
-        return creatorId;
+    public User getCreator() {
+        return creator;
     }
 
-    public void setCreatorId(User creatorId) {
-        this.creatorId = creatorId;
+    public void setCreator(User creatorId) {
+        this.creator = creatorId;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -91,7 +98,7 @@ public class Playlist {
         return "Playlist{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", creatorId=" + creatorId +
+                ", creatorId=" + creator +
                 ", createdAt=" + createdAt +
                 ", isFavorite=" + isFavorite +
                 ", songs=" + songs +

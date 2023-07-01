@@ -3,6 +3,7 @@ package com.app.music_application.controllers;
 import com.app.music_application.models.ResponseObject;
 import com.app.music_application.models.Song;
 import com.app.music_application.models.User;
+import com.app.music_application.models.UserDTO;
 import com.app.music_application.repositories.UserRepository;
 import com.app.music_application.services.ImageStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +102,7 @@ public class UserController {
             );
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("OK", "data null", "")
+                    new ResponseObject("OK", "data null", null)
             );
         }
     }
@@ -192,6 +193,8 @@ public class UserController {
         }
     }
 
+
+
     @PutMapping("/changeAvatar")
     public ResponseEntity<ResponseObject> changeAvatarUser(@RequestParam ("image") MultipartFile imagefile,
                                                            @RequestParam ("userId") Long id) {
@@ -251,8 +254,8 @@ public class UserController {
                 new ResponseObject("OK", "Unfollow user successfully", null)
         );
     }
-    @DeleteMapping("/delete/{id}")
-    ResponseEntity<ResponseObject> deleteUser(@PathVariable Long id) {
+    @DeleteMapping("/delete")
+    ResponseEntity<ResponseObject> deleteUser(@RequestParam(name = "id") Long id) {
         boolean exists = userRepository.existsById(id);
         if(exists){
             userRepository.deleteById(id);
@@ -260,9 +263,11 @@ public class UserController {
                     new ResponseObject("ok", "delete user successfully","")
             );
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new ResponseObject("failed", "cannot find user to delete","")
-        );
+        else {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("failed", "cannot find user to delete", "")
+            );
+        }
     }
 
 }

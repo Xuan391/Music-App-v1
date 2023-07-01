@@ -1,8 +1,16 @@
 package com.app.music_application.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "song")
 public class Song {
@@ -21,23 +29,28 @@ public class Song {
     private String thumbnailUrl;
     @ManyToOne
     @JoinColumn(name = "creator_id")
-    private User creatorId;
+    private User creator;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     @Column(name = "download_count")
     private int downloadCount;
     @Column(name = "listened_count")
     private int listenedCount;
+    @OneToMany(mappedBy = "songId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<ListenedHistory> listenedHistories;
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @OneToMany(mappedBy = "song", cascade = CascadeType.REMOVE)
+    private Set<PlaylistSong> playlistSongs = new HashSet<>();
     public Song() {}
 
-    public Song(String name, Category category, String url, String thumbnailUrl, User creatorId, LocalDateTime createdAt,
-                int downloadCount, int listenedCount) {
+    public Song(Long id, String name, Category category, String url, String thumbnailUrl, User creatorId, LocalDateTime createdAt, int downloadCount, int listenedCount) {
+        this.id = id;
         this.name = name;
         this.category = category;
         this.url = url;
         this.thumbnailUrl = thumbnailUrl;
-        this.creatorId = creatorId;
+        this.creator = creatorId;
         this.createdAt = createdAt;
         this.downloadCount = downloadCount;
         this.listenedCount = listenedCount;
@@ -83,12 +96,12 @@ public class Song {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public User getCreatorId() {
-        return creatorId;
+    public User getCreator() {
+        return creator;
     }
 
-    public void setCreatorId(User creatorId) {
-        this.creatorId = creatorId;
+    public void setCreator(User creatorId) {
+        this.creator = creatorId;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -123,7 +136,7 @@ public class Song {
                 ", category=" + category +
                 ", url='" + url + '\'' +
                 ", thumbnailUrl='" + thumbnailUrl + '\'' +
-                ", creatorId=" + creatorId +
+                ", creatorId=" + creator +
                 ", createdAt=" + createdAt +
                 ", downloadCount=" + downloadCount +
                 ", listenedCount=" + listenedCount +
