@@ -1,11 +1,14 @@
 package com.app.music_application.services;
 
+import com.app.music_application.models.UploadProgress;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +21,17 @@ import java.util.stream.Stream;
 
 @Service
 public class SongStorageService implements IStorageService {
+
     private final Path storageFolder = Paths.get("uploads/songs");
+
+    private SseEmitter uploadProgressEmitter;
+
+
+    public SseEmitter getUploadProgressEmitter() {
+        return uploadProgressEmitter;
+    }
+
+
     public SongStorageService() {
         try {
             Files.createDirectories(storageFolder);
@@ -56,11 +69,32 @@ public class SongStorageService implements IStorageService {
             try(InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFilePath, StandardCopyOption.REPLACE_EXISTING);
             }
+
+            uploadProgressEmitter = new SseEmitter();
+            long fileSize = file.getSize();
+            long uploadedBytes = 0;
+
+            try (InputStream inputStream = file.getInputStream()) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    // Lưu trữ file
+                    uploadedBytes += bytesRead;
+                    double progress = (double) uploadedBytes / fileSize * 100;
+                    UploadProgress uploadProgress = new UploadProgress(uploadedBytes,fileSize,progress);
+                    uploadProgressEmitter.send(uploadProgress);
+                }
+            }catch (IOException e) {
+                throw new RuntimeException("Failed to send upload progress.", e);
+            }
+
             return generatedFilename;
         } catch (Exception exception) {
             throw new RuntimeException("Failed to store file.", exception);
         }
     }
+
+
 
     @Override
     public Stream<Path> loadAll() {

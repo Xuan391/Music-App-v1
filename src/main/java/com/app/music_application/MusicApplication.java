@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @SpringBootApplication
@@ -13,10 +15,14 @@ public class MusicApplication {
 		SpringApplication.run(MusicApplication.class, args);
 
 	}
-
-	@GetMapping("/")
-	public String home() {
-		return "Hello World";
+	@Bean
+	public WebMvcConfigurer corsConfigureer() {
+		return  new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
+				registry.addMapping("/**").allowedMethods("*").allowedOrigins("*");
+			}
+		};
 	}
 
 }

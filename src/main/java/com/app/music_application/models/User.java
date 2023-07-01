@@ -6,10 +6,8 @@ import jakarta.persistence.*;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 @Entity
 @Table(name = "users")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -40,19 +38,26 @@ public class User {
         return followers.size();
     }
 
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<Song> song;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
 //    @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "playlist_id")
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Playlist> playlists = new ArrayList<>();
     //orphanRemoval = true: Thuộc tính này chỉ định xóa các đối tượng con (Playlist) khi chúng không còn được tham chiếu bởi đối tượng cha (User). Nếu orphanRemoval được đặt thành true, khi một Playlist không còn tham chiếu đến User, nó sẽ tự động bị xóa khỏi cơ sở dữ liệu.
 
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ListenedHistory> listenedHistories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SearchHistory> searchHistories = new ArrayList<>();
     public void addDefaultPlaylist() {
         Playlist playlist = new Playlist();
         playlist.setName("Yêu thích");
-        playlist.setCreatorId(this);
+        playlist.setCreator(this);
         playlist.setFavorite(true);
         playlist.setCreatedAt(LocalDateTime.now());
         playlist.setFavorite(true);
@@ -154,5 +159,13 @@ public class User {
                 ", createdAt=" + createdAt +
                 ", playlists=" + playlists +
                 '}';
+    }
+
+    public Collection<Song> getSong() {
+        return song;
+    }
+
+    public void setSong(Collection<Song> song) {
+        this.song = song;
     }
 }
