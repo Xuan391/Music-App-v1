@@ -30,7 +30,7 @@ public class CategoryController {
                         new ResponseObject("OK", "Query category successfully",foundCategory)
                 ):
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        new ResponseObject("false","Cannot find category with id = "+id, "")
+                        new ResponseObject("false","Cannot find category with id = "+id, foundCategory)
                 );
     }
     @PostMapping("/insert")

@@ -25,7 +25,7 @@ public class User {
     private String userName;
     @Column(nullable = false,name = "password")
     private String password;
-    @Column(name = "isAdmin")
+    @Column(name = "is_admin")
     private boolean iaAdmin;
     @Column(name = "name")
     private String name;
