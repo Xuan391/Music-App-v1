@@ -40,12 +40,13 @@ public class UserController {
         Optional<User> foundUser = userRepository.findById(id);
         return foundUser.isPresent() ?
                 ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("OK", "Query product successfully",foundUser)
-                ):
+                        new ResponseObject("OK", "Query product successfully", foundUser)
+                ) :
                 ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("false","Cannot find user with id = "+id, null)
+                        new ResponseObject("false", "Cannot find user with id = " + id, null)
                 );
     }
+
     @GetMapping("/imageFiles/{fileName:.+}")
     public ResponseEntity<byte[]> readDetailImageFile(@PathVariable String fileName) {
         try {
@@ -55,17 +56,18 @@ public class UserController {
                     .contentType(MediaType.IMAGE_JPEG)
                     .body(bytes);
 
-        }catch (Exception exception){
+        } catch (Exception exception) {
             return ResponseEntity.noContent().build(); // ko tìm thấy image trả về nocontent
         }
     }
+
     @PostMapping("/insert")
     ResponseEntity<ResponseObject> insertUser(@RequestParam("name") String name,
                                               @RequestParam("image") MultipartFile imagefile,
                                               @RequestParam("username") String username,
                                               @RequestParam("password") String password) {
         List<User> users = userRepository.findByUserName(username);
-        if(users.size()>0) {
+        if (users.size() > 0) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                     new ResponseObject("fales", "username are already taken", "")
             );
@@ -97,11 +99,11 @@ public class UserController {
 
     @PostMapping("/insertAdmin")
     ResponseEntity<ResponseObject> insertAdmin(@RequestParam("name") String name,
-                                              @RequestParam("image") MultipartFile imagefile,
-                                              @RequestParam("username") String username,
-                                              @RequestParam("password") String password) {
+                                               @RequestParam("image") MultipartFile imagefile,
+                                               @RequestParam("username") String username,
+                                               @RequestParam("password") String password) {
         List<User> users = userRepository.findByUserName(username);
-        if(users.size()>0) {
+        if (users.size() > 0) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                     new ResponseObject("fales", "username are already taken", "")
             );
@@ -130,12 +132,13 @@ public class UserController {
             );
         }
     }
+
     @GetMapping("/checkUserName")
-    public ResponseEntity<ResponseObject> checkUserName(@RequestParam ("username") String userName) {
+    public ResponseEntity<ResponseObject> checkUserName(@RequestParam("username") String userName) {
         List<User> foundUsers = userRepository.findByUserName(userName.trim());
         if (!foundUsers.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("OK","Username are already taken", foundUsers)
+                    new ResponseObject("OK", "Username are already taken", foundUsers)
             );
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(
@@ -143,18 +146,33 @@ public class UserController {
             );
         }
     }
+
     @GetMapping("/login")
-    public ResponseEntity<ResponseObject> login(@RequestParam ("username") String username,
-                                                @RequestParam ("password") String password) {
+    public ResponseEntity<ResponseObject> login(@RequestParam("username") String username,
+                                                @RequestParam("password") String password) {
         List<User> foundUser = userRepository.checkLogin(username.trim(), password.trim());
-        if (!foundUser.isEmpty()){
+        if (!foundUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("OK", "Login successfully", foundUser)
             );
-        }
-        else {
+        } else {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("false", "Login failed",null)
+                    new ResponseObject("false", "Login failed", null)
+            );
+        }
+    }
+
+    @GetMapping("/loginAdmin")
+    public ResponseEntity<ResponseObject> loginAdmin(@RequestParam("username") String username,
+                                                     @RequestParam("password") String password) {
+        List<User> foundAdmin = userRepository.findAdminUsers(username.trim(), password.trim());
+        if (!foundAdmin.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK", "login successfully", foundAdmin)
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("false", "Login failed", null)
             );
         }
     }
@@ -208,10 +226,10 @@ public class UserController {
 //    }
 
     @PutMapping("/update")
-    public ResponseEntity<ResponseObject> updateUser (@RequestParam ("userId") Long id,
-                                                      @RequestParam ("name") String name,
-                                                      @RequestParam ("username") String username,
-                                                      @RequestParam ("password") String password) {
+    public ResponseEntity<ResponseObject> updateUser(@RequestParam("userId") Long id,
+                                                     @RequestParam("name") String name,
+                                                     @RequestParam("username") String username,
+                                                     @RequestParam("password") String password) {
         User updateUser = userRepository.findById(id)
                 .map(user -> {
                     user.setName(name);
@@ -223,18 +241,17 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("OK", "Update user successfully", updateUser)
             );
-        }  else {
+        } else {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("false", "cannot find user with id="+id, "")
+                    new ResponseObject("false", "cannot find user with id=" + id, "")
             );
         }
     }
 
 
-
     @PutMapping("/changeAvatar")
-    public ResponseEntity<ResponseObject> changeAvatarUser(@RequestParam ("image") MultipartFile imagefile,
-                                                           @RequestParam ("userId") Long id) {
+    public ResponseEntity<ResponseObject> changeAvatarUser(@RequestParam("image") MultipartFile imagefile,
+                                                           @RequestParam("userId") Long id) {
         try {
             User user = userRepository.findById(id).orElse(null);
             String imageFileName = imageStorageService.storeFile(imagefile);
@@ -245,10 +262,9 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("OK", "Change avatar successfully", userRepository.save(user))
             );
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                    new ResponseObject("false","Cannot find image file ", "")
+                    new ResponseObject("false", "Cannot find image file ", "")
             );
         }
     }
@@ -276,6 +292,7 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @PutMapping("/unfollow")
     public ResponseEntity<ResponseObject> unfollowUser(@RequestParam("userId") Long userId, @RequestParam("followerId") Long followerId) {
         User user = userRepository.findById(userId).orElse(null);
@@ -291,16 +308,16 @@ public class UserController {
                 new ResponseObject("OK", "Unfollow user successfully", null)
         );
     }
+
     @DeleteMapping("/delete")
     ResponseEntity<ResponseObject> deleteUser(@RequestParam(name = "id") Long id) {
         boolean exists = userRepository.existsById(id);
-        if(exists){
+        if (exists) {
             userRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("ok", "delete user successfully","")
+                    new ResponseObject("ok", "delete user successfully", "")
             );
-        }
-        else {
+        } else {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("failed", "cannot find user to delete", "")
             );

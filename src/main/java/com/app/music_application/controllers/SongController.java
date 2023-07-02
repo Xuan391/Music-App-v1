@@ -41,7 +41,9 @@ public class SongController {
 
 
     @GetMapping("/ShowAll")
-    List<Song> getAllSongs() {return songRepository.findAll();}
+    List<Song> getAllSongs() {
+        return songRepository.findAll();
+    }
 
     @GetMapping("/GetAllSong")
     List<ShowSongDTO> getAllSongDTO() {
@@ -62,17 +64,19 @@ public class SongController {
         }
         return songDTOs;
     }
+
     @GetMapping("/{id}")
     ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
         Optional<Song> foundSong = songRepository.findById(id);
         return foundSong.isPresent() ?
                 ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("OK", "Find song successfully", foundSong)
-                ):
+                ) :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        new ResponseObject("False","Cannot find song with id ="+id,foundSong)
+                        new ResponseObject("False", "Cannot find song with id =" + id, foundSong)
                 );
     }
+
     @GetMapping("/top10MostListenedSongs")
     public ResponseEntity<ResponseObject> getTop10MostListenedSongs() {
         LocalDateTime startDate = LocalDateTime.now().minusMonths(1);
@@ -92,7 +96,7 @@ public class SongController {
                     .contentType(MediaType.IMAGE_JPEG)
                     .body(bytes);
 
-        }catch (Exception exception){
+        } catch (Exception exception) {
             return ResponseEntity.noContent().build(); // ko tìm thấy image trả về nocontent
         }
     }
@@ -107,16 +111,16 @@ public class SongController {
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                     .body(bytes);
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             return ResponseEntity.noContent().build();
         }
     }
+
     @PostMapping("/insertbyuser")
     ResponseEntity<ResponseObject> insertSongByUser(@RequestParam("name") String name,
-                                              @RequestParam("image")MultipartFile imagefile,
-                                              @RequestParam("song")MultipartFile songfile,
-                                              @RequestParam("creator") Long userId) {
+                                                    @RequestParam("image") MultipartFile imagefile,
+                                                    @RequestParam("song") MultipartFile songfile,
+                                                    @RequestParam("creator") Long userId) {
         User creator = userRepository.findById(userId).orElse(null);
         if (creator == null) {
             return ResponseEntity.status(HttpStatus.OK).body(
@@ -226,12 +230,12 @@ public class SongController {
 
     // update, upsert = update if found, otherwise insert
     @PutMapping("/update/{id}") // up date tên bài hát, thể loại của bài hát
-    public ResponseEntity<ResponseObject>  updateSong(@RequestBody Song newSong, @PathVariable Long id) {
+    public ResponseEntity<ResponseObject> updateSong(@RequestBody Song newSong, @PathVariable Long id) {
         Song updateSong = songRepository.findById(id)
                 .map(song -> {
-                   song.setName(newSong.getName());
-                   song.setCategory(newSong.getCategory());
-                   return songRepository.save(song);
+                    song.setName(newSong.getName());
+                    song.setCategory(newSong.getCategory());
+                    return songRepository.save(song);
                 }).orElse(null);
 
         if (updateSong != null) {
@@ -246,9 +250,9 @@ public class SongController {
     }
 
     @PutMapping("/update") // up date tên bài hát, thể loại của bài hát
-    public ResponseEntity<ResponseObject>  updateSong(@RequestParam ("name") String name,
-                                                         @RequestParam ("categoryId") Long categoryId,
-                                                         @RequestParam ("songId") Long songId) {
+    public ResponseEntity<ResponseObject> updateSong(@RequestParam("name") String name,
+                                                     @RequestParam("categoryId") Long categoryId,
+                                                     @RequestParam("songId") Long songId) {
         Category updateCategory = categoryRepository.findById(categoryId).orElse(null);
         Song updateSong = songRepository.findById(songId)
                 .map(song -> {
@@ -269,13 +273,13 @@ public class SongController {
     }
 
     @PutMapping("/changeImage")
-    ResponseEntity<ResponseObject> updateImageSong(@RequestParam ("image") MultipartFile file,
-                                                   @RequestParam Long id){
+    ResponseEntity<ResponseObject> updateImageSong(@RequestParam("image") MultipartFile file,
+                                                   @RequestParam Long id) {
         try {
             Song song = songRepository.findById(id).orElse(null);
             String imageFileName = imageStorageService.storeFile(file);
             String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
-                    "readDetailImageFile",imageFileName).build().toUri().toString();
+                    "readDetailImageFile", imageFileName).build().toUri().toString();
 
             song.setThumbnailUrl(urlImage);
             songRepository.save(song);
@@ -284,12 +288,12 @@ public class SongController {
             );
         } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                    new ResponseObject("false","Cannot find image file ", "")
+                    new ResponseObject("false", "Cannot find image file ", "")
             );
         }
     }
 
-    @PutMapping ("/download")
+    @PutMapping("/download")
     public ResponseEntity<ResponseObject> updateDownloadCount(@RequestParam Long id) {
         // Tìm bài hát theo songId trong cơ sở dữ liệu
         Optional<Song> optionalSong = songRepository.findById(id);
@@ -324,7 +328,7 @@ public class SongController {
     @DeleteMapping("/delete")
     ResponseEntity<ResponseObject> deleteSong(@RequestParam(name = "id") Long id) {
         boolean exists = songRepository.existsById(id);
-        if(exists){
+        if (exists) {
 //            Song song = songRepository.findById(id).orElse(null);
 //            List<ListenedHistory> listenedHistories = listenedHistoryRepository.getListenedHistoriesBySongId(song);
 //            for (ListenedHistory listenedHistory : listenedHistories) {
@@ -332,10 +336,9 @@ public class SongController {
 //            }
             songRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("ok", "delete song successfully","")
+                    new ResponseObject("ok", "delete song successfully", "")
             );
-        }
-        else {
+        } else {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("failed", "cannot find song to delete", "")
             );
