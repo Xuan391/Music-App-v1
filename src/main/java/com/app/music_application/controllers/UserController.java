@@ -117,7 +117,7 @@ public class UserController {
         }
         else {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("false", "Login failed","")
+                    new ResponseObject("false", "Login failed",null)
             );
         }
     }
