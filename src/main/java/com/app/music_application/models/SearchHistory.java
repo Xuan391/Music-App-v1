@@ -1,5 +1,6 @@
 package com.app.music_application.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ public class SearchHistory {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIdentityReference(alwaysAsId = true)
     private User userId;
 
     @Column(name = "search_query")

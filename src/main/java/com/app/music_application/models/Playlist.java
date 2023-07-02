@@ -1,6 +1,7 @@
 package com.app.music_application.models;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
@@ -19,9 +20,10 @@ public class Playlist {
     private Long id;
     @Column(name = "name")
     private String name;
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
     @ManyToOne
     @JoinColumn(name = "creator_id")
+    @JsonIdentityReference(alwaysAsId = true)
     private User creator;
     @Column(name = "created_at")
     private LocalDateTime createdAt;

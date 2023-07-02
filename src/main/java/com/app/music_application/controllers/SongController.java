@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +36,6 @@ public class SongController {
     private ImageStorageService imageStorageService;
     @Autowired
     private SongStorageService songStorageService;
-
     @Autowired
     private ListenedHistoryRepository listenedHistoryRepository;
 
@@ -43,6 +43,25 @@ public class SongController {
     @GetMapping("/ShowAll")
     List<Song> getAllSongs() {return songRepository.findAll();}
 
+    @GetMapping("/GetAllSong")
+    List<ShowSongDTO> getAllSongDTO() {
+        List<ShowSongDTO> songDTOs = new ArrayList<>();
+        List<Song> songs = songRepository.findAll();
+        for (Song song : songs) {
+            ShowSongDTO dto = new ShowSongDTO();
+
+            dto.setSongId(song.getId());
+            dto.setNameSong(song.getName());
+            dto.setUrl(song.getUrl());
+            dto.setThumbnail(song.getThumbnailUrl());
+
+            User user = song.getCreator();
+            dto.setUserId(user.getId());
+            dto.setNameUser(user.getUserName());
+            songDTOs.add(dto);
+        }
+        return songDTOs;
+    }
     @GetMapping("/{id}")
     ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
         Optional<Song> foundSong = songRepository.findById(id);

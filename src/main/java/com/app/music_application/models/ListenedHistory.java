@@ -1,5 +1,6 @@
 package com.app.music_application.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
@@ -16,11 +17,11 @@ public class ListenedHistory {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIdentityReference(alwaysAsId = true)
     private User userId;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "songId")
-
     private Song songId;
 
     @Column(name = "listened_time")
