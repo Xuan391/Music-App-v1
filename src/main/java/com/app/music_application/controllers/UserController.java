@@ -102,7 +102,7 @@ public class UserController {
             );
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("OK", "data null", "")
+                    new ResponseObject("OK", "data null", null)
             );
         }
     }

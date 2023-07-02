@@ -120,7 +120,7 @@ public class SongController {
 
         song.setName(name);
         song.setUrl(songUrl);
-        song.setCreatorId(creator);
+        song.setCreator(creator);
         song.setDownloadCount(0);
         song.setListenedCount(0);
         song.setCreatedAt(LocalDateTime.now());
@@ -177,7 +177,7 @@ public class SongController {
             song.setName(name);
             song.setUrl(songUrl);
             song.setCategory(category);
-            song.setCreatorId(creator);
+            song.setCreator(creator);
             song.setDownloadCount(0);
             song.setListenedCount(0);
             song.setCreatedAt(LocalDateTime.now());

@@ -62,7 +62,7 @@ public class PlaylistController {
             playlist.setSongs(new HashSet<>());
             playlist.setCreatedAt(LocalDateTime.now());
             playlist.setFavorite(false);
-            playlist.setCreatorId(creator);
+            playlist.setCreator(creator);
 
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("OK", "Insert playlist successfully", playlistRepository.save(playlist))

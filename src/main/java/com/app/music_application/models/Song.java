@@ -29,7 +29,7 @@ public class Song {
     private String thumbnailUrl;
     @ManyToOne
     @JoinColumn(name = "creator_id")
-    private User creatorId;
+    private User creator;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     @Column(name = "download_count")
@@ -50,7 +50,7 @@ public class Song {
         this.category = category;
         this.url = url;
         this.thumbnailUrl = thumbnailUrl;
-        this.creatorId = creatorId;
+        this.creator = creatorId;
         this.createdAt = createdAt;
         this.downloadCount = downloadCount;
         this.listenedCount = listenedCount;
@@ -96,12 +96,12 @@ public class Song {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public User getCreatorId() {
-        return creatorId;
+    public User getCreator() {
+        return creator;
     }
 
-    public void setCreatorId(User creatorId) {
-        this.creatorId = creatorId;
+    public void setCreator(User creatorId) {
+        this.creator = creatorId;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -136,7 +136,7 @@ public class Song {
                 ", category=" + category +
                 ", url='" + url + '\'' +
                 ", thumbnailUrl='" + thumbnailUrl + '\'' +
-                ", creatorId=" + creatorId +
+                ", creatorId=" + creator +
                 ", createdAt=" + createdAt +
                 ", downloadCount=" + downloadCount +
                 ", listenedCount=" + listenedCount +
