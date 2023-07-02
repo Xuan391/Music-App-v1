@@ -85,6 +85,43 @@ public class UserController {
             user.setName(name);
             user.setUserName(username);
             user.setPassword(password);
+            user.setIaAdmin(false);
+            user.setFollowers(new HashSet<>());
+            user.setCreatedAt(LocalDateTime.now());
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("OK", "Insert user successfully", userRepository.save(user))
+            );
+        }
+    }
+
+    @PostMapping("/insertAdmin")
+    ResponseEntity<ResponseObject> insertAdmin(@RequestParam("name") String name,
+                                              @RequestParam("image") MultipartFile imagefile,
+                                              @RequestParam("username") String username,
+                                              @RequestParam("password") String password) {
+        List<User> users = userRepository.findByUserName(username);
+        if(users.size()>0) {
+            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+                    new ResponseObject("fales", "username are already taken", "")
+            );
+        } else {
+            User user = new User();
+            if (imagefile != null && !imagefile.isEmpty()) {
+                // Xử lý và lưu trữ file ảnh mới (nếu có)
+                String imageFileName = imageStorageService.storeFile(imagefile);
+                String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                        "readDetailImageFile", imageFileName).build().toUri().toString();
+                user.setAvatarUrl(urlImage);
+            } else {
+                // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
+                user.setAvatarUrl(null);
+            }
+
+            user.setName(name);
+            user.setUserName(username);
+            user.setPassword(password);
+            user.setIaAdmin(true);
             user.setFollowers(new HashSet<>());
             user.setCreatedAt(LocalDateTime.now());
 
