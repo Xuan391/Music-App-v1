@@ -117,46 +117,57 @@ public class SongController {
                                               @RequestParam("image")MultipartFile imagefile,
                                               @RequestParam("song")MultipartFile songfile,
                                               @RequestParam("creator") Long userId) {
-        Song song = new Song();
-        // lưu trữ file
-        String songFileName = songStorageService.storeFile(songfile);
-        //lấy đường dẫn Url
-        String songUrl = MvcUriComponentsBuilder.fromMethodName(SongController.class,
-                "readDetailSongFile", songFileName).build().toUri().toString();
-
-        if (imagefile != null && !imagefile.isEmpty()) {
-            // Xử lý và lưu trữ file ảnh mới (nếu có)
-            String imageFileName = imageStorageService.storeFile(imagefile);
-            String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
-                    "readDetailImageFile", imageFileName).build().toUri().toString();
-            song.setThumbnailUrl(urlImage);
-        } else {
-            // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
-            song.setThumbnailUrl(null);
-        }
-
         User creator = userRepository.findById(userId).orElse(null);
+        if (creator == null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("false", "Insert song failed because not user in data", null)
+            );
+        } else {
+            Song song = new Song();
+            // lưu trữ file
+            String songFileName = songStorageService.storeFile(songfile);
+            //lấy đường dẫn Url
+            String songUrl = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                    "readDetailSongFile", songFileName).build().toUri().toString();
 
-        song.setName(name);
-        song.setUrl(songUrl);
-        song.setCreator(creator);
-        song.setDownloadCount(0);
-        song.setListenedCount(0);
-        song.setCreatedAt(LocalDateTime.now());
+            if (imagefile != null && !imagefile.isEmpty()) {
+                // Xử lý và lưu trữ file ảnh mới (nếu có)
+                String imageFileName = imageStorageService.storeFile(imagefile);
+                String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                        "readDetailImageFile", imageFileName).build().toUri().toString();
+                song.setThumbnailUrl(urlImage);
+            } else {
+                // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
+                song.setThumbnailUrl(null);
+            }
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Insert song successfully", songRepository.save(song))
-        );
+            song.setName(name);
+            song.setUrl(songUrl);
+            song.setCreator(creator);
+            song.setDownloadCount(0);
+            song.setListenedCount(0);
+            song.setCreatedAt(LocalDateTime.now());
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("ok", "Insert song successfully", songRepository.save(song))
+            );
+        }
     }
 
     @PostMapping("/insertbyadmin")
     ResponseEntity<ResponseObject> insertSongByAdmin(@RequestParam("name") String name,
-                                              @RequestParam("image")MultipartFile imagefile,
-                                              @RequestParam("song")MultipartFile songfile,
-                                              @RequestParam("category") Long categoryId,
-                                              @RequestParam("creator") Long userId) {
+                                                     @RequestParam("image") MultipartFile imagefile,
+                                                     @RequestParam("song") MultipartFile songfile,
+                                                     @RequestParam("category") Long categoryId,
+                                                     @RequestParam("creator") Long userId) {
         // Tạo SSE emitter để gửi thông tin tiến trình tải lên cho client
-        SseEmitter uploadProgressEmitter = songStorageService.getUploadProgressEmitter();
+        User creator = userRepository.findById(userId).orElse(null);
+        if (creator == null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("false", "Insert song failed because not user in data", null)
+            );
+        } else {
+            SseEmitter uploadProgressEmitter = songStorageService.getUploadProgressEmitter();
             Song song = new Song();
             // lưu trữ file
             String songFileName = songStorageService.storeFile(songfile);
@@ -166,16 +177,16 @@ public class SongController {
             String songUrl = MvcUriComponentsBuilder.fromMethodName(SongController.class,
                     "readDetailSongFile", songFileName).build().toUri().toString();
 
-        if (imagefile != null && !imagefile.isEmpty()) {
-            // Xử lý và lưu trữ file ảnh mới (nếu có)
-            String imageFileName = imageStorageService.storeFile(imagefile);
-            String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
-                    "readDetailImageFile", imageFileName).build().toUri().toString();
-            song.setThumbnailUrl(urlImage);
-        } else {
-            // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
-            song.setThumbnailUrl(null);
-        }
+            if (imagefile != null && !imagefile.isEmpty()) {
+                // Xử lý và lưu trữ file ảnh mới (nếu có)
+                String imageFileName = imageStorageService.storeFile(imagefile);
+                String urlImage = MvcUriComponentsBuilder.fromMethodName(SongController.class,
+                        "readDetailImageFile", imageFileName).build().toUri().toString();
+                song.setThumbnailUrl(urlImage);
+            } else {
+                // Nếu không có file ảnh mới, đặt giá trị avatarUrl là null
+                song.setThumbnailUrl(null);
+            }
 
 //        Optional<User> optionalUser = userRepository.findById(userId);
 //        if (optionalUser.isEmpty()) {
@@ -190,7 +201,7 @@ public class SongController {
 //            return ResponseEntity.notFound().build();
 //        }
 //        Category category = optionalCategory.get();
-            User creator = userRepository.findById(userId).orElse(null);
+
             Category category = categoryRepository.findById(categoryId).orElse(null);
 
             song.setName(name);
@@ -204,6 +215,7 @@ public class SongController {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "Insert song successfully", songRepository.save(song))
             );
+        }
     }
 
     @GetMapping("/progress")
