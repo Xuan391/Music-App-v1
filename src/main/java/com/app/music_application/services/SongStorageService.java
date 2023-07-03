@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -58,8 +59,11 @@ public class SongStorageService implements IStorageService {
             }
             // store file
             // rename filename before store
-            String generatedFilename = file.getOriginalFilename();
-            Path destinationFilePath = this.storageFolder.resolve(Paths.get(generatedFilename))
+            String generatedFilename1 = file.getOriginalFilename();
+            String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+            String generatedFileName2 = UUID.randomUUID().toString().replace("-", "");
+            generatedFileName2 = generatedFilename1 + generatedFileName2+"."+ fileExtension;
+            Path destinationFilePath = this.storageFolder.resolve(Paths.get(generatedFileName2))
                     .normalize().toAbsolutePath();
             if (!destinationFilePath.getParent().equals(this.storageFolder.toAbsolutePath())){
                 //this is a security check
@@ -88,7 +92,7 @@ public class SongStorageService implements IStorageService {
                 throw new RuntimeException("Failed to send upload progress.", e);
             }
 
-            return generatedFilename;
+            return generatedFileName2;
         } catch (Exception exception) {
             throw new RuntimeException("Failed to store file.", exception);
         }

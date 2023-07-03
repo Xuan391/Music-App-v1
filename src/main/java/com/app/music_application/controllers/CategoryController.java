@@ -44,7 +44,6 @@ public class CategoryController {
         }
         Category category = new Category();
         category.setName(name);
-        category.setId(1L);
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok","Insert category successfully", categoryRepository.save(category))
         );
