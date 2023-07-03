@@ -30,7 +30,7 @@ public class SearchController {
     @Autowired
     private SearchHistoryRepository searchHistoryRepository;
 
-    @GetMapping("")
+    @GetMapping("/searchAll")
     public List<SearchResultDTO> search (@RequestParam("searchText") String searchText, @RequestParam("userId") Long userId) {
 
         User user = userRepository.findById(userId).orElse(null);
@@ -90,5 +90,11 @@ public class SearchController {
         Collections.shuffle(results); // Shuffle the results
         return results;
 
+    }
+
+    @GetMapping("/searchSong")
+    public List<Song> searchSong (@RequestParam ("searchText") String searchText, @RequestParam ("userId") Long UserId){
+        List<Song> songs = songRepository.searchSongsByName(searchText);
+        return songs;
     }
 }

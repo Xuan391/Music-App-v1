@@ -5,11 +5,15 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "user")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -21,6 +25,8 @@ public class User {
     private String userName;
     @Column(nullable = false,name = "password")
     private String password;
+    @Column(name = "isAdmin")
+    private boolean iaAdmin;
     @Column(name = "name")
     private String name;
     @Column(name = "avatar_url")
@@ -68,83 +74,20 @@ public class User {
         addDefaultPlaylist();
     }
 
-    public User(String userName, String password, String name, String avatarUrl, Set<User> followers, int followersCount, LocalDateTime createdAt, List<Playlist> playlists) {
-        this.userName = userName;
-        this.password = password;
-        this.name = name;
-        this.avatarUrl = avatarUrl;
-        this.followers = followers;
-        this.followersCount = followersCount;
-        this.createdAt = createdAt;
-        this.playlists = playlists;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+    public User(Long id, String userName, String password, boolean iaAdmin, String name, String avatarUrl, Set<User> followers, int followersCount, Collection<Song> song, LocalDateTime createdAt, List<Playlist> playlists, List<ListenedHistory> listenedHistories, List<SearchHistory> searchHistories) {
         this.id = id;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+        this.iaAdmin = iaAdmin;
         this.name = name;
-    }
-
-    public String getAvatarUrl() {
-        return avatarUrl;
-    }
-
-    public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
-    }
-
-    public Set<User> getFollowers() {
-        return followers;
-    }
-
-    public void setFollowers(Set<User> followers) {
         this.followers = followers;
-    }
-
-    public void setFollowersCount(int followersCount) {
         this.followersCount = followersCount;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
+        this.song = song;
         this.createdAt = createdAt;
-    }
-
-    public List<Playlist> getPlaylists() {
-        return playlists;
-    }
-
-    public void setPlaylists(List<Playlist> playlists) {
         this.playlists = playlists;
+        this.listenedHistories = listenedHistories;
+        this.searchHistories = searchHistories;
     }
 
     @Override
