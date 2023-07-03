@@ -62,14 +62,14 @@ public class SongController {
         }
         return songDTOs;
     }
-    @GetMapping("/{id}")
-    ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
+    @GetMapping("/show")
+    ResponseEntity<ResponseObject> findById(@RequestParam("songId") Long id) {
         Optional<Song> foundSong = songRepository.findById(id);
         return foundSong.isPresent() ?
                 ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("OK", "Find song successfully", foundSong)
                 ):
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("False","Cannot find song with id ="+id,foundSong)
                 );
     }

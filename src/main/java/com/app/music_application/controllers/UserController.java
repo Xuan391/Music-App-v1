@@ -36,13 +36,14 @@ public class UserController {
     }
 
     @GetMapping("/show")
-    ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
-        Optional<User> foundUser = userRepository.findById(id);
+    ResponseEntity<ResponseObject> findById(@RequestParam("id") Long id) {
+       Optional<User> foundUser = userRepository.findById(id);
         return foundUser.isPresent() ?
                 ResponseEntity.status(HttpStatus.OK).body(
-                        new ResponseObject("OK", "Query product successfully",foundUser)
+                        new ResponseObject("OK", "Query user successfully",foundUser)
                 ):
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+
+                ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("false","Cannot find user with id = "+id, null)
                 );
     }
