@@ -22,8 +22,8 @@ public class CategoryController {
         return categoryRepository.findAll();
     }
 
-    @GetMapping("/show/{id}")
-    ResponseEntity<ResponseObject> findById(@PathVariable Long id){
+    @GetMapping("/show")
+    ResponseEntity<ResponseObject> findById(@RequestParam ("id") Long id){
         Optional<Category> foundCategory = categoryRepository.findById(id);
         return foundCategory.isPresent() ?
                 ResponseEntity.status(HttpStatus.OK).body(
@@ -70,7 +70,7 @@ public class CategoryController {
     }
 
     //Delete a product -> DELETE method
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete")
     ResponseEntity<ResponseObject> deleteCategory(@RequestParam(name = "id") Long id) {
         boolean exists = categoryRepository.existsById(id);
         if(exists){
