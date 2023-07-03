@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM  User WHERE name LIKE %:searchText%", nativeQuery = true)
     List<User> searchUsersByName(@Param("searchText") String searchText);
 
-    @Query(value = "SELECT * FROM user WHERE user_name LIKE :username AND password like :password", nativeQuery = true)
+    @Query(value = "SELECT * FROM user WHERE user_name LIKE :username AND password like :password AND is_admin = false", nativeQuery = true)
     List<User> checkLogin(@Param("username") String username, @Param("password") String password);
 
     @Query(value = "SELECT * FROM user WHERE user_name LIKE :username AND password LIKE :password AND is_admin = true", nativeQuery = true)

@@ -35,7 +35,7 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @GetMapping("/show/{id}")
+    @GetMapping("/show")
     ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
         Optional<User> foundUser = userRepository.findById(id);
         return foundUser.isPresent() ?
@@ -43,9 +43,10 @@ public class UserController {
                         new ResponseObject("OK", "Query product successfully",foundUser)
                 ):
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                        new ResponseObject("false","Cannot find user with id = "+id, "")
+                        new ResponseObject("false","Cannot find user with id = "+id, null)
                 );
     }
+
     @GetMapping("/imageFiles/{fileName:.+}")
     public ResponseEntity<byte[]> readDetailImageFile(@PathVariable String fileName) {
         try {
