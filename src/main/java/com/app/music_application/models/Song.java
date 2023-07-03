@@ -24,6 +24,7 @@ public class Song {
     // Một bài hát thuộc về một Category
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @JsonIdentityReference(alwaysAsId = true)
     private Category category;
     @Column(nullable = false,unique = true,name = "url")
     private String url;
