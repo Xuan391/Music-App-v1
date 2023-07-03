@@ -15,4 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * FROM user WHERE user_name LIKE :username AND password like :password", nativeQuery = true)
     List<User> checkLogin(@Param("username") String username, @Param("password") String password);
+
+    @Query(value = "SELECT * FROM user WHERE user_name LIKE :username AND password LIKE :password AND is_admin = true", nativeQuery = true)
+    List<User> findAdminUsers(@Param("username") String username, @Param("password") String password);
 }

@@ -154,7 +154,22 @@ public class UserController {
         }
         else {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("false", "Login failed","")
+                    new ResponseObject("false", "Login failed",null)
+            );
+        }
+    }
+
+    @GetMapping("/loginAdmin")
+    public ResponseEntity<ResponseObject> loginAdmin (@RequestParam ("username") String username,
+                                                 @RequestParam ("password") String password) {
+        List<User> foundAdmin = userRepository.findAdminUsers(username.trim(), password.trim());
+        if(!foundAdmin.isEmpty()){
+            return ResponseEntity.status(HttpStatus.OK).body(
+              new ResponseObject("OK","login successfully", foundAdmin)
+            );
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObject("false", "Login failed",null)
             );
         }
     }
