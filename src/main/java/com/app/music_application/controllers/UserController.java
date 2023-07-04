@@ -37,25 +37,25 @@ public class UserController {
 
     @GetMapping("/show")
     ResponseEntity<ResponseObject> findById(@RequestParam("id") Long id) {
-//       Optional<User> foundUser = userRepository.findById(id);
-//        return foundUser.isPresent() ?
-//                ResponseEntity.status(HttpStatus.OK).body(
-//                        new ResponseObject("OK", "Query user successfully",foundUser)
-//                ):
-//
-//                ResponseEntity.status(HttpStatus.OK).body(
-//                        new ResponseObject("false","Cannot find user with id = "+id, null)
-//                );
-        List<User> foundUser = userRepository.getUsersById(id);
-        if (!foundUser.isEmpty()){
-            return  ResponseEntity.status(HttpStatus.OK).body(
+       Optional<User> foundUser = userRepository.findById(id);
+        return foundUser.isPresent() ?
+                ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("OK", "Query user successfully",foundUser)
-            );
-        } else {
-             return ResponseEntity.status(HttpStatus.OK).body(
+                ):
+
+                ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("false","Cannot find user with id = "+id, null)
-            );
-        }
+                );
+//        List<User> foundUser = userRepository.getUsersById(id);
+//        if (!foundUser.isEmpty()){
+//            return  ResponseEntity.status(HttpStatus.OK).body(
+//                        new ResponseObject("OK", "Query user successfully",foundUser)
+//            );
+//        } else {
+//             return ResponseEntity.status(HttpStatus.OK).body(
+//                        new ResponseObject("false","Cannot find user with id = "+id, null)
+//            );
+//        }
     }
 
     @GetMapping("/imageFiles/{fileName:.+}")
