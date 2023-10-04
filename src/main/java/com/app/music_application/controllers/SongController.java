@@ -171,8 +171,6 @@ public class SongController {
             Song song = new Song();
             // lưu trữ file
             String songFileName = songStorageService.storeFile(songfile);
-            // Khi hoàn thành việc tải lên, đảm bảo đóng SSE emitter
-            uploadProgressEmitter.complete();
             //lấy đường dẫn Url
             String songUrl = MvcUriComponentsBuilder.fromMethodName(SongController.class,
                     "readDetailSongFile", songFileName).build().toUri().toString();
@@ -247,13 +245,10 @@ public class SongController {
 
     @PutMapping("/update") // up date tên bài hát, thể loại của bài hát
     public ResponseEntity<ResponseObject>  updateSong(@RequestParam ("name") String name,
-                                                         @RequestParam ("categoryId") Long categoryId,
                                                          @RequestParam ("songId") Long songId) {
-        Category updateCategory = categoryRepository.findById(categoryId).orElse(null);
         Song updateSong = songRepository.findById(songId)
                 .map(song -> {
                     song.setName(name);
-                    song.setCategory(updateCategory);
                     return songRepository.save(song);
                 }).orElse(null);
 

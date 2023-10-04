@@ -14,14 +14,6 @@ public class MusicApplication {
 		SpringApplication.run(MusicApplication.class, args);
 
 	}
-	@Bean
-	public WebMvcConfigurer corsConfigureer() {
-		return  new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
-				registry.addMapping("/**").allowedMethods("*").allowedOrigins("*");
-			}
-		};
-	}
+
 
 }

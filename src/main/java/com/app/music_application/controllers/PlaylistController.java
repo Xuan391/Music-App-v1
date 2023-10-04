@@ -112,7 +112,7 @@ public class PlaylistController {
     }
 
     @PutMapping("/addsongtoplaylist")
-    public ResponseEntity<ResponseObject> followUser(@RequestParam("playlist") Long playlistId,
+    public ResponseEntity<ResponseObject> addSongToPlaylist(@RequestParam("playlist") Long playlistId,
                                                      @RequestParam("song") Long songId) {
         // Lấy thông tin Playlist hiện tại từ cơ sở dữ liệu
         Playlist playlist = playlistRepository.findById(playlistId).orElse(null);
@@ -133,7 +133,7 @@ public class PlaylistController {
         }
     }
 
-    @DeleteMapping("/deletesongfromplaylist")
+    @PutMapping("/deletesongfromplaylist")
     public ResponseEntity<ResponseObject> removeSongFromPlaylist(@RequestParam("playlist") Long playlistId,
                                                                  @RequestParam("song") Long songId) {
         Playlist playlist = playlistRepository.findById(playlistId).orElse(null);
@@ -153,7 +153,7 @@ public class PlaylistController {
         );
     }
     @DeleteMapping("/delete")
-    ResponseEntity<ResponseObject> deleteUser(@RequestParam (name = "id") Long id) {
+    ResponseEntity<ResponseObject> deletePlaylist(@RequestParam (name = "id") Long id) {
         boolean exists = playlistRepository.existsById(id);
         if(exists){
             playlistRepository.deleteById(id);

@@ -16,10 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 
 import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping(path = "/api/Users")
@@ -31,8 +28,20 @@ public class UserController {
 
 
     @GetMapping("/ShowAll")
-    List<User> getAllUsers() {
-        return userRepository.findAll();
+    List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        List<UserDTO> userDTOS = new ArrayList<>();
+        for(User user: users){
+            UserDTO userDTO = new UserDTO();
+            userDTO.setName(user.getName());
+            userDTO.setUserId(user.getId());
+            userDTO.setUsername(user.getUserName());
+            userDTO.setPassword(user.getPassword());
+            userDTO.setAvatarURL(user.getAvatarUrl());
+            userDTO.setFollowerCount(user.getFollowersCount());
+            userDTOS.add(userDTO);
+        }
+        return userDTOS;
     }
 
     @GetMapping("/show")
@@ -46,16 +55,6 @@ public class UserController {
                 ResponseEntity.status(HttpStatus.OK).body(
                         new ResponseObject("false","Cannot find user with id = "+id, null)
                 );
-//        List<User> foundUser = userRepository.getUsersById(id);
-//        if (!foundUser.isEmpty()){
-//            return  ResponseEntity.status(HttpStatus.OK).body(
-//                        new ResponseObject("OK", "Query user successfully",foundUser)
-//            );
-//        } else {
-//             return ResponseEntity.status(HttpStatus.OK).body(
-//                        new ResponseObject("false","Cannot find user with id = "+id, null)
-//            );
-//        }
     }
 
     @GetMapping("/imageFiles/{fileName:.+}")
@@ -281,7 +280,7 @@ public class UserController {
     }
 
     @PutMapping("/follow")
-    public ResponseEntity<ResponseObject> followUser(@RequestParam("userid") Long userId,
+    public ResponseEntity<ResponseObject> followUser(@RequestParam("userId") Long userId,
                                                      @RequestParam("followerId") Long followerId) {
         // Lấy thông tin User hiện tại từ cơ sở dữ liệu
         User user = userRepository.findById(userId).orElse(null);

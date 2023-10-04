@@ -40,7 +40,7 @@ public class User {
     )
     private Set<User> followers = new HashSet<>(); //tập hợp các phần tử không trùng lặp
     @Transient
-    private int followersCount;
+    private int followersCount = this.followers.size();
 
     public int getFollowersCount() {
         return followers.size();

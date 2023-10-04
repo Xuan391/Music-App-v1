@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import static jakarta.persistence.GenerationType.*;
+
 @Entity
 @Table(name = "playlist")
 public class Playlist {
