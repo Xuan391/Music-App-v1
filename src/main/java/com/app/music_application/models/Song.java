@@ -22,7 +22,7 @@ public class Song {
     @Column(nullable = false, length = 300,name = "name")
     private String name;
     // Một bài hát thuộc về một Category
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id")
     @JsonIdentityReference(alwaysAsId = true)
     private Category category;

@@ -93,8 +93,19 @@ public class SearchController {
     }
 
     @GetMapping("/searchSong")
-    public List<Song> searchSong (@RequestParam ("searchText") String searchText, @RequestParam ("userId") Long UserId){
+    public List<ShowSongDTO> searchSong (@RequestParam ("searchText") String searchText, @RequestParam ("userId") Long UserId){
         List<Song> songs = songRepository.searchSongsByName(searchText);
-        return songs;
+        List<ShowSongDTO> songDTOS = new ArrayList<>();
+        for (Song song: songs){
+            ShowSongDTO songDTO = new ShowSongDTO();
+            songDTO.setSongId(song.getId());
+            songDTO.setNameSong(song.getName());
+            songDTO.setNameUser(song.getCreator().getUserName());
+            songDTO.setThumbnail(song.getThumbnailUrl());
+            songDTO.setUrl(song.getUrl());
+            songDTO.setUserId(song.getCreator().getId());
+            songDTOS.add(songDTO);
+        }
+        return songDTOS;
     }
 }
